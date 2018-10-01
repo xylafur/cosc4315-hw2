@@ -1,25 +1,52 @@
 
 <program> ::= <stmts>
-<stmts> ::= <stmt> {NEWLINE <stmts>}
-<stmt> ::= <expr> | <func_decl> | <stmt>{;<stmt>}
+<stmts> ::= <stmt> { NEWLINE <stmts> | ; <stmts> }
+
+<stmt> ::= <expr> | <func_decl>
 
 <func_call> ::= <ident>'('<ident_list>')'
 <func_decl> ::= 'def' <func_call> ':' (<expr>| NEWLINE <block_stmts>)
 
 
-<expr> ::= <assn> | <math> | <bool> | <print_expr>
+<expr> ::= <assn> | <math> | <bool> | <print_expr> | <condition> | <conditional>
+
+<bool> ::= TRUE | FALSE
+
+<comparison> ::= <math> (==|<=|>=|<|>|!=) <math> 
+
+<bool_term> ::= (<math> | <comparison> | <bool>)
+<condition> ::=  <and_cod> OR <and_cond> | <and_cond>
+<and_cond> ::= <bool_term> AND <bool_term> 
+
+<conditional> ::= if <condition> : <block_stmts>
+                  {elif <condition> : <block_stmts>}
+                  [else : <block_stmts>]
+
 <print_expr> ::= 'print' (<ident_list>|)
+
 <assn> ::= <ident> '=' (<math>|<assn>)
-<math> ::= <mult>(+|-)<mult> | <mult> | '('<mult>')'
-<mult> ::= <term>(*|/)<term> | <term> | '('<term>')'
+
+<inparenth> ::= ( <math> )
+
+<math> ::= <math>(+|-)<mult> | <mult> | <inparenth>
+
+<mult> ::= <mult>(*|/)<term> | <term> | '('<term>')'
+
 <term> ::= <ident> | <func_call> | <number> | {(+|-)} <term> | '('<number>')'
+
+<tuple> = (<ident> | <number> | <string>) {','<tuple>}
 
 <ident> ::= letter {letter|digit}
 <ident_list> ::= <ident> {','<ident>}
+
 <number> ::= digit{digit}
 <letter> ::= _ | (A-Z) | (a-z)
 <digit> ::= 0-9
 
-<string> ::= '"'<string_data>'"' | "'"<string_data>"'"
+<string> ::= " <string_data> " | ' <string_data> '
 
+<string_data> = ( ASCII | \" | \'  | ' ' ) {<string_data>}
 
+<ret_stmt> ::= <expr>
+
+<block_stmts> ::= INDENT <stmts> DEDENT
