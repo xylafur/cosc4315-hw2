@@ -13,7 +13,8 @@ char * NAMES [] = {"", "DEF", "COLON", "RETURN", "INDENT", "DEDENT", "PRINT",
                    "IF", "ELSE", "FOR", "WHILE", "IDENTIFIER", "NEWLINE",
                    "STRING", "NUMBER", "REAL", "STAR", "PLUS", "SLASH",
                    "MINUS", "EQUALSEQUALS", "EQUALS", "LPARENTH", "RPARENTH",
-                   "COMMA", "BACKSLASH", "WHITESPACE"};
+                   "COMMA", "BACKSLASH", "WHITESPACE", "TRUE", "FALSE",
+                   "COMMENT"};
 
 %}
 
@@ -26,6 +27,9 @@ else                        return ELSE;
 
 for                         return FOR;
 while                       return WHILE;
+
+True                        return TRUE;
+False                       return FALSE;
 
 [0-9]*\.[0-9]+              return REAL;
 [0-9]+\.[0-9]*              return REAL;
@@ -50,6 +54,7 @@ while                       return WHILE;
 \'[a-zA-Z0-9_\!"]*\'        return STRING;
 
 [a-zA-Z][a-zA-Z0-9_]*       return IDENTIFIER;
+#[^\n]+                     return COMMENT;
 "   "                       return INDENT;
 \n                          return NEWLINE;
 " "                         return WHITESPACE;
@@ -74,7 +79,7 @@ int yywrap()
  *  level.  Adds tokens like dedent and ensures that we never indent more than
  *  once
  */
-int get_next_token()
+int _get_next_token()
 {
     int current_indent = 0;
     //this is how we make up for multiple dedents
@@ -125,6 +130,15 @@ int get_next_token()
         cached_token = token;
         return DEDENT;
     }
+    return token;
+}
+
+int get_next_token()
+{
+    int token;
+    do{
+        token = _get_next_token();
+    } while(token == WHITESPACE || token == COMMENT);
     return token;
 }
 

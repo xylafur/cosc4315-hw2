@@ -35,7 +35,11 @@ enum tokens {
     COMMA,
 
     BACKSLASH,
-    WHITESPACE
+    WHITESPACE,
+
+    TRUE,
+    FALSE,
+    COMMENT
 
 };
 

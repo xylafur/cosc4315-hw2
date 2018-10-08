@@ -15,6 +15,7 @@
 
 void print_type(int token);
 void set_input_file(char * str);
+int _get_next_token(void);
 int get_next_token(void);
 
 #endif
