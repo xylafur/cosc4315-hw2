@@ -1,8 +1,7 @@
 %{
 #include <stdio.h>
 #include "tokens.h"
-
-int whitespace_matters = 1;
+#include "lexer.h"
 
 unsigned int global_indent_level = 0;
 unsigned int dedent_count = 0;
@@ -10,7 +9,11 @@ int cached_token = 0;
 int token = 0;
 int first_in_line = 1;
 
-int get_next_token(void);
+char * NAMES [] = {"", "DEF", "COLON", "RETURN", "INDENT", "DEDENT", "PRINT",
+                   "IF", "ELSE", "FOR", "WHILE", "IDENTIFIER", "NEWLINE",
+                   "STRING", "NUMBER", "REAL", "STAR", "PLUS", "SLASH",
+                   "MINUS", "EQUALSEQUALS", "EQUALS", "LPARENTH", "RPARENTH",
+                   "COMMA", "BACKSLASH", "WHITESPACE"};
 
 %}
 
@@ -49,7 +52,7 @@ while                       return WHILE;
 [a-zA-Z][a-zA-Z0-9_]*       return IDENTIFIER;
 "   "                       return INDENT;
 \n                          return NEWLINE;
-" "                         {if(whitespace_matters) return WHITESPACE;}
+" "                         return WHITESPACE;
 .                           ;
 
 %%
@@ -91,6 +94,9 @@ int get_next_token()
         first_in_line = 1;
     //continue getting tokens until we don't get whitespace
     token = yylex();
+    //for an edge case, to keet the block going
+    if(token == NEWLINE)
+        return token;
     //if we get a newline character, we start a new line.  Indents are only
     //significant at the beginning of a line
     if(! first_in_line)
@@ -122,22 +128,7 @@ int get_next_token()
     return token;
 }
 
-int main (int argc, char * argv[])
+void set_input_file(char * str)
 {
-    if (argc != 2){
-        printf("Need input file\n");
-        return 1;
-    }
-
-    yyin=fopen(argv[1], "r");
-
-    int token;
-    token = get_next_token();
-    while(token){
-        printf(" ");
-        print_type(token);
-        printf(" ");
-        token = get_next_token();
-    }
-    printf("\n");
+    yyin=fopen(str, "r");
 }

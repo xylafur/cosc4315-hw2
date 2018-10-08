@@ -4,7 +4,8 @@ LEX_INPUT=$(LEX_DIR)lexer.l
 LEX_OUTPUT=$(LEX_DIR)lex.yy.c
 INCLUDE=./include/
 
-FILES=$(LEX_OUTPUT)
+MAIN=main.cpp
+FILES=$(LEX_OUTPUT) $(MAIN)
 CC=g++
 
 OUTPUT=out

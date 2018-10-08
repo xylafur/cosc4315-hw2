@@ -1,3 +1,6 @@
+#ifndef TOKEN_HEADER
+    #define TOKEN_HEADER
+
 enum tokens {
 //Function related
     DEF = 1,
@@ -36,10 +39,5 @@ enum tokens {
 
 };
 
-char * NAMES [] = {"", "DEF", "COLON", "RETURN", "INDENT", "DEDENT", "PRINT",
-                   "IF", "ELSE", "FOR", "WHILE", "IDENTIFIER", "NEWLINE",
-                   "STRING", "NUMBER", "REAL", "STAR", "PLUS", "SLASH",
-                   "MINUS", "EQUALSEQUALS", "EQUALS", "LPARENTH", "RPARENTH",
-                   "COMMA", "BACKSLASH", "WHITESPACE"};
 
-
+#endif
