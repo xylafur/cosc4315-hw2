@@ -2,6 +2,8 @@
 #include <stdio.h>
 #include "tokens.h"
 
+int whitespace_matters = 1;
+
 %}
 
 %%
@@ -39,7 +41,9 @@ while                       return WHILE;
 [a-zA-Z][a-zA-Z0-9_]*       return IDENTIFIER;
 "   "                       return INDENT;
 \n                          return NEWLINE;
+" "                         {if(whitespace_matters) return WHITESPACE;}
 .                           ;
+
 %%
 
 void print_type(int token)

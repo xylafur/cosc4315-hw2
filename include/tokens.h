@@ -32,6 +32,7 @@ enum tokens {
     COMMA,
 
     BACKSLASH,
+    WHITESPACE
 
 };
 
@@ -39,6 +40,6 @@ char * NAMES [] = {"", "DEF", "COLON", "RETURN", "INDENT", "DEDENT", "PRINT",
                    "IF", "ELSE", "FOR", "WHILE", "IDENTIFIER", "NEWLINE",
                    "STRING", "NUMBER", "REAL", "STAR", "PLUS", "SLASH",
                    "MINUS", "EQUALSEQUALS", "EQUALS", "LPARENTH", "RPARENTH",
-                   "COMMA", "BACKSLASH"};
+                   "COMMA", "BACKSLASH", "WHITESPACE"};
 
 
