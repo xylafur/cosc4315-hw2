@@ -4,7 +4,6 @@ LEXER=flex
 LEX_DIR=./lexer/
 LEX_INPUT=$(SOURCE)lexer.l
 LEX_OUTPUT=$(LEX_DIR)lex.yy.c
-INCLUDE=./include/
 
 PARSER=bison
 PARSER_DIR=./parser/
@@ -13,11 +12,15 @@ PARSER_OUTPUT=$(PARSER_DIR)parser.tab.c
 
 MAIN=main.cpp
 FILES=$(LEX_OUTPUT) $(MAIN)
+INCLUDE=./include/
 CC=g++
 
-OUTPUT=out
+OUTPUT=mypython
 
-main: lexer parser
+main: mypython
+	echo "Built as $(OUTPUT)"
+
+mypython: lexer parser
 	$(CC) -o $(OUTPUT) -I $(INCLUDE) $(FILES)
 
 lexer:
