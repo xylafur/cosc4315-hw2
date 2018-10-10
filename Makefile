@@ -15,14 +15,15 @@ CC=g++
 
 OUTPUT=out
 
+main: lex parse
+	$(CC) -o $(OUTPUT) -I $(INCLUDE) $(FILES)
+
 lex:
 	$(LEXER) -o $(LEX_OUTPUT) $(LEX_INPUT) 
 
 parse:
 	$(PARSER) -o $(PARSER_OUTPUT) $(PARSER_INPUT)
-
-main: lex parse
-	$(CC) -o $(OUTPUT) -I $(INCLUDE) $(FILES)
+	sed -i 's/yylex/get_next_token/g' $(PARSER_OUTPUT)
 
 clean:
 	rm $(OUTPUT) $(LEX_OUTPUT) $(PARSER_OUTPUT)
