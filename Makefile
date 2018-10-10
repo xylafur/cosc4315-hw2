@@ -1,12 +1,14 @@
+SOURCE=./src/
+
 LEXER=flex
 LEX_DIR=./lexer/
-LEX_INPUT=$(LEX_DIR)lexer.l
+LEX_INPUT=$(SOURCE)lexer.l
 LEX_OUTPUT=$(LEX_DIR)lex.yy.c
 INCLUDE=./include/
 
 PARSER=bison
 PARSER_DIR=./parser/
-PARSER_INPUT=$(PARSER_DIR)parser.y
+PARSER_INPUT=$(SOURCE)parser.y
 PARSER_OUTPUT=$(PARSER_DIR)parser.tab.c
 
 MAIN=main.cpp
@@ -15,15 +17,18 @@ CC=g++
 
 OUTPUT=out
 
-main: lex parse
+main: lexer parser
 	$(CC) -o $(OUTPUT) -I $(INCLUDE) $(FILES)
 
-lex:
+lexer:
+	mkdir $(LEX_DIR)
 	$(LEXER) -o $(LEX_OUTPUT) $(LEX_INPUT) 
 
-parse:
+parser:
+	mkdir $(PARSER_DIR)
 	$(PARSER) -o $(PARSER_OUTPUT) $(PARSER_INPUT)
 	sed -i 's/yylex/get_next_token/g' $(PARSER_OUTPUT)
 
 clean:
-	rm $(OUTPUT) $(LEX_OUTPUT) $(PARSER_OUTPUT)
+	rm $(OUTPUT)
+	rm -r $(PARSER_DIR) $(LEX_DIR)
