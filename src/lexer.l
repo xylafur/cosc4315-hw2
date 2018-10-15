@@ -1,20 +1,14 @@
 %{
 #include <stdio.h>
-#include "tokens.h"
-#include "lexer.h"
+//#include "tokens.h"
+#include "parser.tab.h"
+/*#include "lexer.h"*/
 
 unsigned int global_indent_level = 0;
 unsigned int dedent_count = 0;
 int cached_token = 0;
 int token = 0;
 int first_in_line = 1;
-
-char * NAMES [] = {"", "DEF", "COLON", "RETURN", "INDENT", "DEDENT", "PRINT",
-                   "IF", "ELSE", "FOR", "WHILE", "IDENTIFIER", "NEWLINE",
-                   "STRING", "NUMBER", "REAL", "STAR", "PLUS", "SLASH",
-                   "MINUS", "EQUALSEQUALS", "EQUALS", "LPARENTH", "RPARENTH",
-                   "COMMA", "BACKSLASH", "WHITESPACE", "TRUE", "FALSE",
-                   "COMMENT"};
 
 %}
 
@@ -31,9 +25,9 @@ while                       return WHILE;
 True                        return TRUE;
 False                       return FALSE;
 
-[0-9]*\.[0-9]+              return REAL;
-[0-9]+\.[0-9]*              return REAL;
-[0-9]+                      return NUMBER;
+[0-9]*\.[0-9]+              yylval.real=atof(yytext); return REAL;
+[0-9]+\.[0-9]*              yylval.real=atof(yytext); return REAL;
+[0-9]+                      yylval.num=atoi(yytext); return NUMBER;
 
 ==                          return EQUALSEQUALS;
 =                           return EQUALS;
@@ -50,29 +44,17 @@ False                       return FALSE;
 
 \\                          return BACKSLASH;
 
-\"[a-zA-Z0-9_\!']*\"        return STRING;
-\'[a-zA-Z0-9_\!"]*\'        return STRING;
+\"[a-zA-Z0-9_\!']*\"        yylval.str=strdup(yytext); return STRING;
+\'[a-zA-Z0-9_\!"]*\'        yylval.str=strdup(yytext); return STRING;
 
-[a-zA-Z][a-zA-Z0-9_]*       return IDENTIFIER;
-#[^\n]+                     return COMMENT;
+[a-zA-Z][a-zA-Z0-9_]*       yylval.str=strdup(yytext); return IDENTIFIER;
+#[^\n]+                     /*  Just consume    */
 "   "                       return INDENT;
 \n                          return NEWLINE;
-" "                         return WHITESPACE;
+" "                         /*return WHITESPACE;*/
 .                           ;
 
 %%
-
-void print_type(int token)
-{
-    printf("%s", NAMES[token]);
-}
-
-
-int yywrap()
-{
-    return 1;
-}
-
 
 /*
  *  Take what we get from yylex and return the proper token based on indention
@@ -138,7 +120,7 @@ int get_next_token()
     int token;
     do{
         token = _get_next_token();
-    } while(token == WHITESPACE || token == COMMENT);
+    } while(token == WHITESPACE);
     return token;
 }
 

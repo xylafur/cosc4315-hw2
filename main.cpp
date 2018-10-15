@@ -1,10 +1,12 @@
 #include <stdio.h>
 
-#include "tokens.h"
-#include "lexer.h"
+#include "parser.tab.h"
 
 int main (int argc, char * argv[])
 {
+    yyparse();
+/*
+
     if (argc != 2){
         printf("Need input file\n");
         return 1;
@@ -20,5 +22,5 @@ int main (int argc, char * argv[])
         token = get_next_token();
     }
     printf("\n");
-
+    */
 }
