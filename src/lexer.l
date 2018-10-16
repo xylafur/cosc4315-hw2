@@ -25,6 +25,9 @@ while                       return WHILE;
 True                        return TRUE;
 False                       return FALSE;
 
+and                         return AND;
+or                          return OR;
+
 [0-9]*\.[0-9]+              yylval.real=atof(yytext); return REAL;
 [0-9]+\.[0-9]*              yylval.real=atof(yytext); return REAL;
 [0-9]+                      yylval.num=atoi(yytext); return NUMBER;

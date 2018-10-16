@@ -25,7 +25,7 @@ void yyerror(const char * str)
 
 %}
 
-%token DEF RETURN PRINT IF ELSE FOR WHILE TRUE FALSE
+%token DEF RETURN PRINT IF ELSE FOR WHILE TRUE FALSE AND OR
 %token STRING NUMBER REAL IDENTIFIER
 %token STAR PLUS SLASH MINUS EQUALSEQUALS EQUALS 
 %token LPARENTH RPARENTH COMMA BACKSLASH COLON
@@ -43,28 +43,154 @@ void yyerror(const char * str)
 
 %%
 
-program:    /*empty, but not sure why we need this*/
-       |    program func
-       |    program stmts
+program:    %empty
+       |    program stmt
+       {
+            printf("Matched program\n");
+       }
        ;
 
-func:       DEF IDENTIFIER LPARENTH RPARENTH COLON NEWLINE
+
+stmt:   simple_stmt
+    |   compound_stmt NEWLINE
     {
-        printf("Matched function: %s!\n", $2);
+        printf("Matched stmt\n");
     }
     ;
 
-stmts:      stmt
-     |      stmts stmt
+simple_stmt:    single_stmt NEWLINE
+           {
+                printf("matched simple_stmt\n");
+           }
+           ;
+
+mult_simp_stmt: %empty 
+              | mult_simp_stmt simple_stmt
+              {
+                printf("Found multiple simple stmts!\n");
+              }
+              ;
+
+single_stmt:    %empty
+           |    print_stmt
+           |    assignment
+           |    value_list
+           |    return_stmt
+           {
+               printf("Matched single_stmt!\n");
+           }
+           ;
+
+compound_stmt:  branch_stmt
+             |  func_def
+             ;
+
+func_def:   DEF IDENTIFIER LPARENTH RPARENTH COLON block_stmt
+        {
+            printf("Matched function: %s!\n", $2);
+        }
+        ;
+
+branch_stmt:    IF bool_expr COLON block_stmt
+           {
+                printf("Matched branch_stmt\n");
+           }
+           ;
+
+block_stmt: NEWLINE INDENT mult_simp_stmt DEDENT
+          {
+            printf("Matched block_stmt\n");
+          }
+          ;
+
+print_stmt: PRINT value_list
+          {printf("Matched print stmt\n");}
+          ;
+
+assignment: IDENTIFIER EQUALS value
+          {
+            printf("Matched assignment\n");
+          }
+          ;
+
+value:  STRING
+     |  bool_expr
+     {
+        printf("Found value\n");
+     }
      ;
 
-stmt:       PRINT NEWLINE
-    |       NEWLINE
+value_list: value COMMA value_list
+          | value
+          {
+            printf("Found value list\n");
+          }
+          ;
+
+func_call:  IDENTIFIER LPARENTH RPARENTH
+         {
+            printf("funciton call!\n");
+         }
+         ;
+
+return_stmt:    RETURN value
+           {
+            printf("Found return stmt\n");
+           }
+           ;
+
+bool_expr:  bool_expr OR bool_expr2
+         |  bool_expr2
+         {
+            printf("Matched bool_expr\n");
+         }
+         ;
+
+bool_expr2: bool_expr2 AND bool
+          | bool
+          {
+            printf("Matched bool_expr2\n");
+          }
+          ;
+
+bool:   TRUE
+    |   FALSE
+    |   expr1
     {
-        printf("Matched stmt!\n");
+
+        printf("Matched bool\n");
     }
     ;
 
+expr1:  expr1 PLUS expr2
+     |  expr1 MINUS expr2
+     |  expr2
+     {
+
+        printf("Matched expr1\n");
+     }
+     ;
+
+expr2:  expr2 STAR expr3
+     |  expr2 SLASH expr3
+     |  expr3
+     {
+
+        printf("Matched expr2\n");
+     }
+     ;
+
+expr3:  PLUS expr3
+     |  MINUS expr3
+     |  func_call
+     |  IDENTIFIER
+     |  NUMBER
+     |  REAL
+     {
+
+        printf("Matched expr3\n");
+     }
+     ;
 %%
 
 /*  additional C code   */

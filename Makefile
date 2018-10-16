@@ -13,7 +13,7 @@ PARSER_DIR=./parser/
 PARSER_INPUT=$(SOURCE)parser.y
 PARSER_OUTPUT=$(PARSER_DIR)parser.tab.c
 PARSER_HEADER=$(INCLUDE)parser.tab.h
-PARSER_FLAGS=-Wconflicts-sr
+PARSER_DEBUG_FLAGS=-Wconflicts-sr --debug --report=all
 
 MAIN=main.cpp
 FILES=$(LEX_OBJECT) $(PARSER_OUTPUT) $(MAIN)
@@ -33,9 +33,9 @@ lexer:
 
 parser:
 	mkdir $(PARSER_DIR)
-	$(PARSER) -o $(PARSER_OUTPUT) -d  $(PARSER_INPUT) $(PARSER_FLAGS)
+	$(PARSER) -o $(PARSER_OUTPUT) -d  $(PARSER_INPUT)
 	mv $(PARSER_DIR)*.h $(INCLUDE)
-	#sed -i 's/yylex/get_next_token/g' $(PARSER_OUTPUT)
+	sed -i 's/yylex/get_next_token/g' $(PARSER_OUTPUT)
 
 objects:
 	mkdir objects
