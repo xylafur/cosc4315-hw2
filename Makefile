@@ -1,12 +1,12 @@
 SOURCE=./src/
 INCLUDE=./include/
-OBJECTS=./objects/
+OBJECTS_DIR=./objects/
 
 LEXER=flex
 LEX_DIR=./lexer/
 LEX_INPUT=$(SOURCE)lexer.l
 LEX_OUTPUT=$(LEX_DIR)lex.yy.c
-LEX_OBJECT=$(OBJECTS)lex.o
+LEX_OBJECT=$(OBJECTS_DIR)lex.o
 
 PARSER=bison
 PARSER_DIR=./parser/
@@ -14,19 +14,35 @@ PARSER_INPUT=$(SOURCE)parser.y
 PARSER_OUTPUT=$(PARSER_DIR)parser.tab.c
 PARSER_HEADER=$(INCLUDE)parser.tab.h
 PARSER_DEBUG_FLAGS=-Wconflicts-sr --debug --report=all
+PARSER_OBJECT=$(OBJECTS_DIR)parse.o
 
-MAIN=main.cpp
-FILES=$(LEX_OBJECT) $(PARSER_OUTPUT) $(MAIN)
+AST=$(SOURCE)ast.cpp
+AST_OBJECT=$(OBJECTS_DIR)ast.o
+
+MAIN=$(SOURCE)main.cpp
+MAIN_OBJECT=$(OBJECTS_DIR)main.o
+
+OBJECTS=$(LEX_OBJECT) $(PARSER_OBJECT) $(AST_OBJECT) $(MAIN_OBJECT)
+
 CC=g++
-CC_FLAGS=-std=c++11
+CC_FLAGS=-std=c++11 -I $(INCLUDE)
 
 OUTPUT=mypython
 
-mypython: lex_object
-	$(CC) $(CC_FLAGS) -o $(OUTPUT) -I $(INCLUDE) $(FILES)
+mypython: $(OBJECTS)
+	$(CC) $(CC_FLAGS) -o $(OUTPUT) $(OBJECTS)
 
-lex_object: objects parser lexer
-	gcc -I $(INCLUDE) -c $(LEX_OUTPUT) -o $(LEX_OBJECT)
+$(LEX_OBJECT): objects parser lexer
+	gcc $(CC_FLAGS) -c $(LEX_OUTPUT) -o $(LEX_OBJECT)
+
+$(PARSER_OBJECT): objects parser $(LEX_OBJECT)
+	$(CC) $(CC_FLAGS) -c $(PARSER_OUTPUT) -o $(PARSER_OBJECT)
+
+$(AST_OBJECT): objects
+	$(CC) $(CC_FLAGS) -c $(AST) -o $(AST_OBJECT)
+
+$(MAIN_OBJECT): objects
+	$(CC) $(CC_FLAGS) -c $(MAIN) -o $(MAIN_OBJECT)
 
 lexer:
 	mkdir $(LEX_DIR)
@@ -44,6 +60,5 @@ objects:
 test: mypython
 	python3 testing/tester.py
 
-
 clean:
-	rm -r $(PARSER_DIR) $(LEX_DIR) $(PARSER_HEADER) $(OBJECTS) $(OUTPUT)
+	rm -r $(PARSER_DIR) $(LEX_DIR) $(PARSER_HEADER) $(OBJECTS_DIR) $(OUTPUT)
