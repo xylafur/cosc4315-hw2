@@ -13,48 +13,48 @@ int first_in_line = 1;
 %}
 
 %%
-def                         return DEF;
-return                      return RETURN;
-print                       return PRINT;
-if                          return IF;
-else                        return ELSE;
+def                         printf("Matched DEF\n"); return DEF;
+return                      printf("Matched RETURN\n"); return RETURN;
+print                       printf("Matched PRINT\n"); return PRINT;
+if                          printf("Matched IF\n"); return IF;
+else                        printf("Matched ELSE\n"); return ELSE;
 
-for                         return FOR;
-while                       return WHILE;
+for                         printf("Matched FOR\n"); return FOR;
+while                       printf("Matched WHILE\n"); return WHILE;
 
-True                        return TRUE;
-False                       return FALSE;
+True                        printf("Matched TRUE\n"); return TRUE;
+False                       printf("Matched FALSE\n"); return FALSE;
 
-and                         return AND;
-or                          return OR;
+and                         printf("Matched AND\n"); return AND;
+or                          printf("Matched OR\n"); return OR;
 
-[0-9]*\.[0-9]+              yylval.real=atof(yytext); return REAL;
-[0-9]+\.[0-9]*              yylval.real=atof(yytext); return REAL;
-[0-9]+                      yylval.num=atoi(yytext); return NUMBER;
+[0-9]*\.[0-9]+              yylval.real=atof(yytext); printf("Matched REAL\n"); return REAL;
+[0-9]+\.[0-9]*              yylval.real=atof(yytext); printf("Matched REAL\n"); return REAL;
+[0-9]+                      yylval.num=atoi(yytext); printf("Matched NUMBER\n"); return NUMBER;
 
-==                          return EQUALSEQUALS;
-=                           return EQUALS;
+==                          printf("Matched EQUALSEQUALS\n"); return EQUALSEQUALS;
+=                           printf("Matched EQUALS\n"); return EQUALS;
 
-:                           return COLON;
-\*                          return STAR;
-\+                          return PLUS;
--                           return MINUS;
-\/                          return SLASH;
-,                           return COMMA;
+:                           printf("Matched COLON\n"); return COLON;
+\*                          printf("Matched STAR\n"); return STAR;
+\+                          printf("Matched PLUS\n"); return PLUS;
+-                           printf("Matched MINUS\n"); return MINUS;
+\/                          printf("Matched SLASH\n"); return SLASH;
+,                           printf("Matched COMMA\n"); return COMMA;
 
-\(                          return LPARENTH;
-\)                          return RPARENTH;
+\(                          printf("Matched LPARENTH\n"); return LPARENTH;
+\)                          printf("Matched RPARENTH\n"); return RPARENTH;
 
-\\                          return BACKSLASH;
+\\                          printf("Matched BACKSLASH\n"); return BACKSLASH;
 
-\"[a-zA-Z0-9_\!']*\"        yylval.str=strdup(yytext); return STRING;
-\'[a-zA-Z0-9_\!"]*\'        yylval.str=strdup(yytext); return STRING;
+\"[a-zA-Z0-9_\!']*\"        yylval.str=strdup(yytext); printf("Matched STRING\n"); return STRING;
+\'[a-zA-Z0-9_\!"]*\'        yylval.str=strdup(yytext); printf("Matched STRING\n"); return STRING;
 
-[a-zA-Z][a-zA-Z0-9_]*       yylval.str=strdup(yytext); return IDENTIFIER;
+[a-zA-Z][a-zA-Z0-9_]*       yylval.str=strdup(yytext); printf("Matched IDENTIFIER\n"); return IDENTIFIER;
 #[^\n]+                     /*  Just consume    */
-"   "                       return INDENT;
-\n                          return NEWLINE;
-" "                         /*return WHITESPACE;*/
+"   "                       printf("Matched INDENT\n"); return INDENT;
+\n                          printf("Matched NEWLINE\n"); return NEWLINE;
+" "                         /*printf("Matched WHITESPACE\n"); return WHITESPACE;*/
 .                           ;
 
 %%
@@ -70,6 +70,7 @@ int _get_next_token()
     //this is how we make up for multiple dedents
     if(dedent_count){
         dedent_count--;
+        printf("Matched DEDENT!\n");
         return DEDENT;
     }
     //if we cahced a token previously, return that because we don't need a new
@@ -113,6 +114,7 @@ int _get_next_token()
         dedent_count = global_indent_level - current_indent - 1;
         global_indent_level = current_indent;
         cached_token = token;
+        printf("Matched DEDENT\n");
         return DEDENT;
     }
     return token;
