@@ -95,8 +95,8 @@ func_def:   DEF IDENTIFIER LPARENTH RPARENTH COLON block_stmt
         }
         ;
 
-branch_condition:   bool_expr
-                |   LPARENTH bool_expr RPARENTH
+branch_condition:   expr1
+                |   LPARENTH expr1 RPARENTH
                 {
                     printf("Found branch condition!\n");
                 }
@@ -126,7 +126,7 @@ assignment: IDENTIFIER EQUALS value
           ;
 
 value:  STRING
-     |  bool_expr
+     |  expr1 
      {
         printf("Found value\n");
      }
@@ -151,64 +151,66 @@ return_stmt:    RETURN value
            }
            ;
 
-bool_expr:  bool_expr OR bool_expr2
-         |  bool_expr2
-         {
-            printf("Matched bool_expr\n");
-         }
-         ;
+expr1: expr1 OR expr2 
+     | expr2 
+     {
+        printf("Matched expr1 [OR]\n");
+     }
+     ;
 
-bool_expr2: bool_expr2 AND bool_expr3
-          | bool_expr3
-          {
-            printf("Matched bool_expr2\n");
-          }
-          ;
-bool_expr3: bool EQUALSEQUALS bool
-          | bool
-          {
-            printf("Matched bool_expr3\n");
-          }
-          ;
+expr2: expr2 AND expr3 
+     | expr3
+     {
+        printf("Matched expr2 [AND]\n");
+     }
+     ;
 
+expr3: expr4 EQUALSEQUALS expr4
+     | expr4
+     {
+        printf("Matched expr3 [==]\n");
+     }
+     ;
+
+expr4:  expr4 PLUS expr5
+     |  expr4 MINUS expr5
+     |  expr5
+     {
+
+        printf("Matched expr4 [+ or -]\n");
+     }
+     ;
+
+expr5:  expr5 STAR expr6
+     |  expr5 SLASH expr6
+     |  expr6
+     {
+
+        printf("Matched expr5 [* or /]\n");
+     }
+     ;
+
+expr6:  PLUS expr6
+     |  MINUS expr6
+     |  func_call
+     |  bool
+     |  IDENTIFIER
+     |  NUMBER
+     |  REAL
+     {
+
+        printf("Matched expr6 [func_call or ident or number or bool ...] \n");
+     }
+     ;
 bool:   TRUE
     |   FALSE
-    |   expr1
     {
 
         printf("Matched bool\n");
     }
     ;
 
-expr1:  expr1 PLUS expr2
-     |  expr1 MINUS expr2
-     |  expr2
-     {
 
-        printf("Matched expr1\n");
-     }
-     ;
-
-expr2:  expr2 STAR expr3
-     |  expr2 SLASH expr3
-     |  expr3
-     {
-
-        printf("Matched expr2\n");
-     }
-     ;
-
-expr3:  PLUS expr3
-     |  MINUS expr3
-     |  func_call
-     |  IDENTIFIER
-     |  NUMBER
-     |  REAL
-     {
-
-        printf("Matched expr3\n");
-     }
-     ;
 %%
 
 /*  additional C code   */
