@@ -3,15 +3,13 @@ INCLUDE=./include/
 OBJECTS_DIR=./objects/
 
 LEXER=flex
-LEX_DIR=./lexer/
 LEX_INPUT=$(SOURCE)lexer.l
-LEX_OUTPUT=$(LEX_DIR)lex.yy.c
+LEX_OUTPUT=$(SOURCE)lex.yy.c
 LEX_OBJECT=$(OBJECTS_DIR)lex.o
 
 PARSER=bison
-PARSER_DIR=./parser/
 PARSER_INPUT=$(SOURCE)parser.y
-PARSER_OUTPUT=$(PARSER_DIR)parser.tab.c
+PARSER_OUTPUT=$(SOURCE)parser.tab.c
 PARSER_HEADER=$(INCLUDE)parser.tab.h
 PARSER_DEBUG_FLAGS=-Wconflicts-sr --debug --report=all
 PARSER_OBJECT=$(OBJECTS_DIR)parse.o
@@ -45,13 +43,11 @@ $(MAIN_OBJECT): objects
 	$(CC) $(CC_FLAGS) -c $(MAIN) -o $(MAIN_OBJECT)
 
 lexer:
-	mkdir $(LEX_DIR)
 	$(LEXER) -o $(LEX_OUTPUT) $(LEX_INPUT) 
 
 parser:
-	mkdir $(PARSER_DIR)
 	$(PARSER) -o $(PARSER_OUTPUT) -d  $(PARSER_INPUT)
-	mv $(PARSER_DIR)*.h $(INCLUDE)
+	mv $(SOURCE)*.h $(INCLUDE)
 	sed -i 's/yylex/get_next_token/g' $(PARSER_OUTPUT)
 
 objects:
@@ -61,4 +57,4 @@ test: mypython
 	python3 testing/tester.py
 
 clean:
-	rm -r $(PARSER_DIR) $(LEX_DIR) $(PARSER_HEADER) $(OBJECTS_DIR) $(OUTPUT)
+	rm -r $(PARSER_HEADER) $(OBJECTS_DIR) $(OUTPUT) $(LEX_OUTPUT) $(PARSER_OUTPUT)
