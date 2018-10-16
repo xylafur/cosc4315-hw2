@@ -52,7 +52,7 @@ program:    %empty
 
 
 stmt:   simple_stmt
-    |   compound_stmt NEWLINE
+    |   compound_stmt
     {
         printf("Matched stmt\n");
     }
@@ -64,12 +64,13 @@ simple_stmt:    single_stmt NEWLINE
            }
            ;
 
-mult_simp_stmt: %empty 
-              | mult_simp_stmt simple_stmt
-              {
-                printf("Found multiple simple stmts!\n");
-              }
-              ;
+mult_stmts: %empty 
+          | mult_stmts simple_stmt
+          | mult_stmts compound_stmt
+          {
+            printf("Found multiple simple stmts!\n");
+          }
+          ;
 
 single_stmt:    %empty
            |    print_stmt
@@ -83,6 +84,9 @@ single_stmt:    %empty
 
 compound_stmt:  branch_stmt
              |  func_def
+             {
+                printf("Matched compound stmt\n");
+             }
              ;
 
 func_def:   DEF IDENTIFIER LPARENTH RPARENTH COLON block_stmt
@@ -91,19 +95,27 @@ func_def:   DEF IDENTIFIER LPARENTH RPARENTH COLON block_stmt
         }
         ;
 
-branch_stmt:    IF bool_expr COLON block_stmt
+branch_condition:   bool_expr
+                |   LPARENTH bool_expr RPARENTH
+                {
+                    printf("Found branch condition!\n");
+                }
+                ;
+
+branch_stmt:    IF branch_condition COLON block_stmt
+           |    IF branch_condition COLON block_stmt ELSE COLON block_stmt
            {
                 printf("Matched branch_stmt\n");
            }
            ;
 
-block_stmt: NEWLINE INDENT mult_simp_stmt DEDENT
+block_stmt: NEWLINE INDENT mult_stmts DEDENT
           {
             printf("Matched block_stmt\n");
           }
           ;
 
-print_stmt: PRINT value_list
+print_stmt: PRINT LPARENTH value_list RPARENTH
           {printf("Matched print stmt\n");}
           ;
 
@@ -120,7 +132,7 @@ value:  STRING
      }
      ;
 
-value_list: value COMMA value_list
+value_list: value_list COMMA value
           | value
           {
             printf("Found value list\n");
@@ -146,10 +158,16 @@ bool_expr:  bool_expr OR bool_expr2
          }
          ;
 
-bool_expr2: bool_expr2 AND bool
-          | bool
+bool_expr2: bool_expr2 AND bool_expr3
+          | bool_expr3
           {
             printf("Matched bool_expr2\n");
+          }
+          ;
+bool_expr3: bool EQUALSEQUALS bool
+          | bool
+          {
+            printf("Matched bool_expr3\n");
           }
           ;
 

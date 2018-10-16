@@ -47,8 +47,8 @@ or                          return OR;
 
 \\                          return BACKSLASH;
 
-\"[a-zA-Z0-9_\!']*\"        yylval.str=strdup(yytext); return STRING;
-\'[a-zA-Z0-9_\!"]*\'        yylval.str=strdup(yytext); return STRING;
+\"[^\"\n]*\"        yylval.str=strdup(yytext); return STRING;
+\'[^\'\n]*\'        yylval.str=strdup(yytext); return STRING;
 
 [a-zA-Z][a-zA-Z0-9_]*       yylval.str=strdup(yytext); return IDENTIFIER;
 #[^\n]+                     /*  Just consume    */

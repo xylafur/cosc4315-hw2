@@ -9,5 +9,4 @@ def test():
 
 #this is a comment
 
-if __name__ == '__main__':
-   test()
+print("Status of test function: ", test())
