@@ -47,8 +47,8 @@ or                          printf("Matched OR\n"); return OR;
 
 \\                          printf("Matched BACKSLASH\n"); return BACKSLASH;
 
-\"[a-zA-Z0-9_\!']*\"        yylval.str=strdup(yytext); printf("Matched STRING\n"); return STRING;
-\'[a-zA-Z0-9_\!"]*\'        yylval.str=strdup(yytext); printf("Matched STRING\n"); return STRING;
+\"[^\"\n]*\"                yylval.str=strdup(yytext); return STRING;
+\'[^\'\n]*\'                yylval.str=strdup(yytext); return STRING;
 
 [a-zA-Z][a-zA-Z0-9_]*       yylval.str=strdup(yytext); printf("Matched IDENTIFIER\n"); return IDENTIFIER;
 #[^\n]+                     /*  Just consume    */
