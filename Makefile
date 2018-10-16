@@ -18,11 +18,12 @@ PARSER_DEBUG_FLAGS=-Wconflicts-sr --debug --report=all
 MAIN=main.cpp
 FILES=$(LEX_OBJECT) $(PARSER_OUTPUT) $(MAIN)
 CC=g++
+CC_FLAGS=-std=c++11
 
 OUTPUT=mypython
 
 mypython: lex_object
-	$(CC) -o $(OUTPUT) -I $(INCLUDE) $(FILES)
+	$(CC) $(CC_FLAGS) -o $(OUTPUT) -I $(INCLUDE) $(FILES)
 
 lex_object: objects parser lexer
 	gcc -I $(INCLUDE) -c $(LEX_OUTPUT) -o $(LEX_OBJECT)
