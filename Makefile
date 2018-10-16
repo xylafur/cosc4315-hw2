@@ -41,5 +41,9 @@ parser:
 objects:
 	mkdir objects
 
+test: mypython
+	python3 testing/tester.py
+
+
 clean:
 	rm -r $(PARSER_DIR) $(LEX_DIR) $(PARSER_HEADER) $(OBJECTS) $(OUTPUT)
