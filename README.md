@@ -14,6 +14,9 @@ METHODOLOGY:
 
     We are able to lex, parse and create the AST in a single pass.
 
+    But we were unfortunately unable to complete the code which coverts the AST
+    into bytecode.
+
 
 OUTPUT:
     The mypython program will output the AST.
@@ -56,8 +59,37 @@ LIMITATIONS:
         into an AST node, this causes significant problems.
 
 
-HOW TO VERIFY THE BYTECODE WORKS CORRECTLY:
-    Currently there is no way to verify this.  There was, but last minute
-    changes broke it.  Consider this a placeholder, if my partner is able to
-    fix his code then we will add instructions on how to run a bytecode file
+VIRTUAL MACHINE
+    The virtual machine
+
+RUNNING THE BYTECODE VM
+    All of the vm files are in the folder "bytecode_stuff"
+    simply run make and it compile virtual_machine.cpp into an
+        executable called breader
+
+    to the VM on a bytecode binary:
+        ./breader bcode.bin
+
+    to make custom bytecode files an editor is include called editor.py
+    this editor is interactive however it is also scriptable, simply use standard input
+    piping
+        example:
+            ./editor.py < bcode.txt
+
+    The bcode.txt included implements this program:
+        def f():
+           x = 3 * 2
+           y = 3 - 2
+           z = 3 + 2
+           x = l
+           if y > l:
+              l = y
+           if z > l:
+              l = z
+           return l
+        print(f())
+
+    Currently the virtual_machine has support for recursion as it has a working
+    function stack which stores the program counters to return to and proper
+    function stack frame variables.
 
