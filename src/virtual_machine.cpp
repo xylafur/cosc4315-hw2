@@ -168,6 +168,7 @@ int run(uint64_t *main_program, size_t length) {
 }
 
 
+/*
 int main(int argc, char **argv) {
   //open file
   fstream infile(argv[1], ios::in | ios::binary);
@@ -193,4 +194,5 @@ int main(int argc, char **argv) {
 
   return i;
 }
+*/
 
