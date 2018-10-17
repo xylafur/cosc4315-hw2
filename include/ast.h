@@ -56,6 +56,8 @@ struct ParseTreeNode {
     } value;
 };
 
+node_ptr get_ast();
+
 node_ptr create_program_node(int num_children, node_array children);
 
 node_ptr create_number_node (long value);

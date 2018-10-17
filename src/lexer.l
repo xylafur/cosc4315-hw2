@@ -1,8 +1,6 @@
 %{
 #include <stdio.h>
-//#include "tokens.h"
 #include "parser.tab.h"
-/*#include "lexer.h"*/
 
 unsigned int global_indent_level = 0;
 unsigned int dedent_count = 0;

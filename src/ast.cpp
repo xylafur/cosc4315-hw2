@@ -141,38 +141,9 @@ void destroy_tree(ParseTreeNode * root)
     delete root;
 }
 
-#ifdef MAKE_MAIN
-int main()
+node_ptr get_ast()
 {
-    node_array children;
-
-    node_ptr x = create_identifier_node("x");
-    node_ptr five = create_number_node(5);
-    node_ptr six = create_number_node(6);
-
-    children = alloc_children(2);
-    children[0] = five;
-    children[1] = six;
-    node_ptr five_plus_six = create_expr_node('+', 2, children);
-
-
-    node_ptr x_eq_5_plus_6 = create_assignment_node(x, five_plus_six);
-
-    node_ptr True = create_number_node(1);
-
-    children = alloc_children(1);
-    children[0] = x_eq_5_plus_6;
-    node_ptr block = create_block_stmt_node(1, children);
-
-    node_ptr branch = create_branch_no_else_node(True, block);
-
-    children = alloc_children(1);
-    children[0] = branch;   
-    node_ptr program = create_program_node(1, children);
-
-    print_tree(program, 0);
-
-    destroy_tree(program);
+    yyparse();
+    create_program();
+    return pop_node_from_stack();
 }
-
-#endif

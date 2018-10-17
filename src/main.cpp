@@ -1,5 +1,4 @@
 #include <stdio.h>
-
 #include "parser.tab.h"
 #include "ast.h"
 #include "node_util.h"
@@ -13,8 +12,8 @@ int main (int argc, char * argv[])
         yyin=fopen(argv[1], "r");
     }
 
-    yyparse();
-    create_program();
-    print_stack();
+    node_ptr ast_root = get_ast();
+
+    print_tree(ast_root, 0);
 
 }
