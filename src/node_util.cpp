@@ -35,6 +35,24 @@ void get_oper(node_ptr node, char oper [4])
         oper[1] = 'r';
         oper[2] = '\0';
         break;
+    case GREATEREQUALS:
+        oper[0] = '>';
+        oper[1] = '=';
+        oper[2] = '\0';
+        break;
+    case LESSEQUALS:
+        oper[0] = '<';
+        oper[1] = '=';
+        oper[2] = '\0';
+        break;
+    case GREATER:
+        oper[0] = '>';
+        oper[1] = '\0';
+        break;
+    case LESS:
+        oper[0] = '<';
+        oper[1] = '\0';
+        break;
     }
 }
 
@@ -51,7 +69,7 @@ void print_node_type(node_ptr node)
             printf("FUNC_DEF: %s\n", node->value.s_value);
             break;
         case BLOCK_STMT_NODE:
-            printf("BLOCK STMT\n");
+            printf("BLOCK STMT w/ %d children\n", node->num_children);
             break;
         case BRANCH_STMT_NO_ELSE_NODE:
             printf("BRANCH_STMT_NO_ELSE\n");

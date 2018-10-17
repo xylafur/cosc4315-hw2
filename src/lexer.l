@@ -8,6 +8,26 @@ int cached_token = 0;
 int token = 0;
 int first_in_line = 1;
 
+#define MAX_STMT_STACK_SIZE 1024
+int stmt_stack [MAX_STMT_STACK_SIZE];
+int num_stmts = 0;
+int stmt_stack_pos = 0;
+
+void enter_block()
+{
+    stmt_stack[stmt_stack_pos++] = num_stmts;
+    num_stmts = 0;
+}
+
+void exit_block()
+{
+    if(stmt_stack_pos == 0){
+        num_stmts = 0;
+    }else{
+        num_stmts = stmt_stack[--stmt_stack_pos];
+    }
+}
+
 %}
 
 %%
@@ -31,6 +51,10 @@ or                          return OR;
 [0-9]+                      yylval.num=atoi(yytext); return NUMBER;
 
 ==                          return EQUALSEQUALS;
+\>=                          return GREATEREQUALS;
+\<=                          return LESSEQUALS;
+\>                           return GREATER;
+\<                           return LESS;
 =                           return EQUALS;
 
 :                           return COLON;
@@ -121,6 +145,9 @@ int get_next_token()
     int token;
     do{
         token = _get_next_token();
+        if(token == IF || token == ELSE || token == DEF){
+            enter_block();
+        }
     } while(token == WHITESPACE);
     return token;
 }

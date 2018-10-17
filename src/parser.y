@@ -14,6 +14,10 @@ extern "C"
     {
         return 1;
     }
+
+    extern int num_stmts;
+    void enter_block();
+    void exit_block();
 }
 
 int yyparse(void);
@@ -25,13 +29,13 @@ void yyerror(const char * str)
 
 int mod = 1;
 int value_list_length = 0;
-int num_stmts = 0;
 
 %}
 
 %token DEF RETURN PRINT IF ELSE FOR WHILE TRUE FALSE AND OR
 %token STRING NUMBER REAL IDENTIFIER
-%token STAR PLUS SLASH MINUS EQUALSEQUALS EQUALS 
+%token STAR PLUS SLASH MINUS EQUALS 
+%token EQUALSEQUALS GREATEREQUALS LESSEQUALS GREATER LESS
 %token LPARENTH RPARENTH COMMA BACKSLASH COLON
 %token INDENT DEDENT NEWLINE WHITESPACE
 
@@ -121,7 +125,7 @@ block_stmt: NEWLINE INDENT mult_stmts DEDENT
                 children[num_stmts - ii - 1] = pop_node_from_stack();
             node_ptr node = create_block_stmt_node(num_stmts, children);
             push_node_to_stack(node);
-            num_stmts = 0;
+            exit_block();
           }
           ;
 
@@ -153,11 +157,8 @@ value:  STRING  {
      |  expr1
      ;
 
-value_list: value_list COMMA value
-          | value
-          {
-            value_list_length += 1;
-          }
+value_list: value_list COMMA value  { value_list_length += 1; }
+          | value                   { value_list_length += 1; }
           ;
 
 func_call:  IDENTIFIER LPARENTH RPARENTH
@@ -189,6 +190,18 @@ expr2: expr2 AND expr3          {
 
 expr3: expr4 EQUALSEQUALS expr4 {
                                     push_operator(EQUALSEQUALS);
+                                }
+     | expr4 GREATEREQUALS expr4{
+                                    push_operator(GREATEREQUALS);
+                                }
+     | expr4 LESSEQUALS expr4   {
+                                    push_operator(LESSEQUALS);
+                                }
+     | expr4 GREATER expr4      {
+                                    push_operator(GREATER);
+                                }
+     | expr4 LESS expr4         {
+                                    push_operator(LESS);
                                 }
      | expr4
      ;

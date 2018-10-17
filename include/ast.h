@@ -86,6 +86,6 @@ node_ptr create_func_call_node(char * name);
 
 node_ptr create_return_stmt(node_ptr ret_val);
 
-void destroy_tree(ParseTreeNode * root);
+void destroy_tree(node_ptr root);
 #endif
 
