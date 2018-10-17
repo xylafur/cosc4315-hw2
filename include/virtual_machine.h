@@ -6,6 +6,8 @@
 #include <stack>
 #include <vector>
 #include <iostream>
+#include <fstream>
+#include <cstring>
 #include "byte_code_iset.h"
 
 int run(uint64_t *program);

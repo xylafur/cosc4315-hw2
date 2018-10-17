@@ -1,7 +1,5 @@
 
 #include "virtual_machine.h"
-#include <fstream>
-#include <cstring>
 using namespace std;
 
 int run(uint64_t *main_program, size_t length) {
@@ -38,14 +36,13 @@ int run(uint64_t *main_program, size_t length) {
 
   while (pc < length) {
     ins = main_program[pc++];
-    //cout << "DEBUG INS PC: " << std::hex << ins << std::dec << endl;
     bcode = ins >> 56;
 
     switch (bcode) {
       case ByteCode_ISET::nop:
         break;
       case ByteCode_ISET::exit_prog:
-        goto exit_label;
+        return (ins & INS_ADDR_MASK);
 
       case ByteCode_ISET::addi:
         assert(operand_stack_scope.top() >= 2);
@@ -164,7 +161,7 @@ int run(uint64_t *main_program, size_t length) {
     }
   }
 
-  exit_label: return 0;
+  return 0;
 }
 
 
