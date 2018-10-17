@@ -19,16 +19,22 @@ int run(uint64_t *main_program, size_t length) {
   uint64_t ref; // temp registers a and b
   Operand temp(a); // temp operand
 
+
   #define VAL() operand_stack.top().value;\
                 operand_stack.pop();\
                 operand_stack_scope.top()--
+
+  #define DEREF() ((operand_stack.top().o_type == reference_ot) ?\
+                   (function_stack_variables.top()[operand_stack.top().reference]) :\
+                   (operand_stack.top().value)); operand_stack.pop();\
+                  operand_stack_scope.top()--
 
   #define REF() operand_stack.top().reference;\
                 operand_stack.pop();\
                 operand_stack_scope.top()--
 
-  #define VAB() b = VAL(); a = VAL()
-  #define ARB() b = VAL(); ref = REF()
+  #define VAB() b = DEREF(); a = DEREF()
+  #define ARB() b = DEREF(); ref = REF()
 
   #define ABO(O) VAB(); temp = Operand((int64_t)(a O b));\
                         operand_stack.push(temp);\
@@ -168,7 +174,6 @@ int run(uint64_t *main_program, size_t length) {
   return 0;
 }
 
-
 /*
 int main(int argc, char **argv) {
   //open file
@@ -196,4 +201,3 @@ int main(int argc, char **argv) {
   return i;
 }
 */
-
