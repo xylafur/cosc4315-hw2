@@ -139,10 +139,10 @@ VIRTUAL MACHINE
 
 RUNNING THE BYTECODE VM
     All of the vm files are in the folder "bytecode_stuff"
-    simply run make and it compile virtual_machine.cpp into an
-        executable called breader
+    simply run make when inside the directory and it will compile
+    virtual_machine.cpp into an executable called breader
 
-    to the VM on a bytecode binary:
+    to run the VM on a bytecode binary:
         ./breader bcode.bin
 
     to make custom bytecode files an editor is include called editor.py
@@ -182,4 +182,5 @@ RUNNING THE BYTECODE VM
     Currently the virtual_machine has support for recursion as it has a working
     function stack which stores the program counters to return to and proper
     function stack frame variables.
+
 
