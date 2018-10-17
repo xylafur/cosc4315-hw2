@@ -92,11 +92,15 @@ int run(uint64_t *main_program, size_t length) {
 
       case ByteCode_ISET::assn:
         assert(operand_stack_scope.top() >= 2);
+        if ((temp = operand_stack.top()).o_type == reference_ot) {
+          a = function_stack_variables.top()[temp.reference];
+          operand_stack.top() = Operand(a);
+        }
         ARB();
         function_stack_variables.top()[ref] = b;
         break;
 
-      case ByteCode_ISET::deref:
+      case ByteCode_ISET::deref:  // made useless by assn instruction dereference check
         assert(operand_stack_scope.top() >= 1);
         assert((temp = operand_stack.top()).o_type == reference_ot);
         a = function_stack_variables.top()[temp.reference];
