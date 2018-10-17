@@ -46,7 +46,8 @@ ByteCode_ISET = [
 ]
 
 byte2binstr = lambda i:(lambda n:'0'*(8-len(n)) + n)(bin(i)[2:])
-ByteCode_ISET = {b:i for i,b in enumerate(ByteCode_ISET)}
+encoder = {b:i for i,b in enumerate(ByteCode_ISET)}
+decoder = {i:b for i,b in enumerate(ByteCode_ISET)}
 
 import sys
 from math import log, ceil
@@ -66,7 +67,9 @@ help_txt =\
 """
 
 while True:
-   user_in = input(help_txt).strip()
+   user_in = input(help_txt)
+   print(' user_input -> ', user_in)
+   user_in = user_in.strip()
    if not(user_in) or user_in[0] == '#': continue
 
    user_in = user_in.split('#')[0].split(':')
@@ -78,10 +81,12 @@ while True:
    if action == 'M':
       print('Your program: ')
       if len(program):
-         fmt = '0x{:0' + log16(len(program)*8) + 'X}        {}'
+         fmt = '0x{{:0{}X}}    '*2
+         fmt = fmt.format(log16(len(program)), log16(len(program)*8))
+         fmt += '   {}'
          for i, p in enumerate(program):
             p = ' '.join(['{:02X}'.format(pp) for pp in p][::-1])
-            print(fmt.format(i*8, p))
+            print(fmt.format(i, i*8, p))
 
    elif action == 'R':
       data = data.split(',')
@@ -123,10 +128,10 @@ while True:
          program.append(l)
 
    elif action == 'I':
-      print('\n'.join('{} : {}'.format(k, ByteCode_ISET[k]) for k in ByteCode_ISET))
-   else: break
-
-with open('bcode.bin', 'wb') as f:
-   for p in program:
-      f.write(bytearray(p))
+      print('\n'.join('{} : {}'.format(k, encoder[k]) for k in encoder))
+   else:
+      with open(action + '.bin', 'wb') as f:
+         for p in program:
+            f.write(bytearray(p))
+      break
 
