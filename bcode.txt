@@ -1,73 +1,56 @@
-
 W: 0 0 0 0 0 0 0 0      # 0x0000 NOP
-W: 28 0 0 0 0 0 1 128    # 0x0008 branch MAIN
-
+W: 28 0 0 0 0 0 1 128   # 0x0008 branch MAIN
 W: 20 0 0 0 0 0 0 0     # 0x0010 push ref to x
 W: 18 0 0 0 0 0 1 112   # 0x0018 push constant A
 W: 18 0 0 0 0 0 1 120   # 0x0020 push constant B
 W: 3 0 0 0 0 0 0 0      # 0x0028 multiply
 W: 12 0 0 0 0 0 0 0     # 0x0030 assign
-
 W: 20 0 0 0 0 0 0 1     # 0x0038 push ref to y
 W: 18 0 0 0 0 0 1 112   # 0x0040 push constant A
 W: 18 0 0 0 0 0 1 120   # 0x0048 push constant B
 W: 2 0 0 0 0 0 0 0      # 0x0050 subtract
 W: 12 0 0 0 0 0 0 0     # 0x0058 assign
-
 W: 20 0 0 0 0 0 0 2     # 0x0060 push ref to z
 W: 18 0 0 0 0 0 1 112   # 0x0068 push constant A
 W: 18 0 0 0 0 0 1 120   # 0x0070 push constant B
 W: 1 0 0 0 0 0 0 0      # 0x0078 add
 W: 12 0 0 0 0 0 0 0     # 0x0080 assign
-
 W: 20 0 0 0 0 0 0 3     # 0x0088 push ref to l
 W: 20 0 0 0 0 0 0 0     # 0x0090 push ref to x
 W: 0 0 0 0 0 0 0 0      # 0x0098 NOP
 W: 12 0 0 0 0 0 0 0     # 0x00A0 assign
-
-# LABEL: CMPLY
-W: 20 0 0 0 0 0 0 1     # 0x00B8 push ref to y
+W: 20 0 0 0 0 0 0 1     # 0x00B8 push ref to y ; LABEL CMPLY
 W: 13 0 0 0 0 0 0 0     # 0x00B0 deref
 W: 20 0 0 0 0 0 0 3     # 0x00A8 push ref to l
 W: 13 0 0 0 0 0 0 0     # 0x00C0 deref
 W: 9 0 0 0 0 0 0 0      # 0x00C8 cmp gt
-W: 27 0 0 0 0 0 0 224   # 0x00D0 branch-if LAY
-W: 28 0 0 0 0 0 1 0     # 0x00D8 branch CMPLZ
-
-# LABEL: LAY
-W: 20 0 0 0 0 0 0 3     # 0x00E0 push ref to l
+W: 27 0 0 0 0 0 0 1     # 0x00D0 branch-if LAY
+W: 28 0 0 0 0 0 0 4     # 0x00D8 branch CMPLZ
+W: 20 0 0 0 0 0 0 3     # 0x00E0 push ref to l ; LABEL LAY
 W: 20 0 0 0 0 0 0 1     # 0x00E8 push ref to y
 W: 13 0 0 0 0 0 0 0     # 0x00F0 deref
 W: 12 0 0 0 0 0 0 0     # 0x00F8 assign
-
-# LABEL: CMPLZ
-W: 20 0 0 0 0 0 0 2     # 0x0100 push ref to z
+W: 20 0 0 0 0 0 0 2     # 0x0100 push ref to z ; LABEL CMPLZ
 W: 13 0 0 0 0 0 0 0     # 0x0108 deref
 W: 20 0 0 0 0 0 0 3     # 0x0110 push ref to l
 W: 13 0 0 0 0 0 0 0     # 0x0118 deref
 W: 9 0 0 0 0 0 0 0      # 0x0120 cmp gt
-W: 27 0 0 0 0 0 1 56    # 0x0128 branch-if LAZ
-W: 28 0 0 0 0 0 1 88    # 0x0130 branch RET
-
-# LABEL LAZ
-W: 20 0 0 0 0 0 0 3     # 0x0138 push ref to l
+W: 27 0 0 0 0 0 0 1     # 0x0128 branch-if LAZ
+W: 28 0 0 0 0 0 0 4     # 0x0130 branch RET
+W: 20 0 0 0 0 0 0 3     # 0x0138 push ref to l ; LABEL LAZ
 W: 20 0 0 0 0 0 0 2     # 0x0140 push ref to z
 W: 13 0 0 0 0 0 0 0     # 0x0148 deref
 W: 12 0 0 0 0 0 0 0     # 0x0150 assign
-
-# LABEL RET
-W: 20 0 0 0 0 0 0 3     # 0x0158 push ref to l
+W: 20 0 0 0 0 0 0 3     # 0x0158 push ref to l ; LABEL RET
 W: 13 0 0 0 0 0 0 0     # 0x0160 deref
 W: 26 0 0 0 0 0 0 0     # 0x0168 return
-
 W: 0 0 0 0 0 0 0 3      # 0x0170 A 
 W: 0 0 0 0 0 0 0 2      # 0x0178 B
-
-# MAIN
 W: 24 4 0 0 0 0 0 16    # 0x0180 call the function
 W: 14 0 0 0 0 0 0 0     # 0x0188 print the integer
 W: 29 0 0 0 0 0 0 0     # 0x0190 end program
 M
+Q
 bcode
 
 def f():

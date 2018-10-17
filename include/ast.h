@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <assert.h>
 #include "parser.tab.h"
 
 typedef enum parse_tree_type_s {
@@ -46,6 +47,7 @@ typedef enum parse_tree_type_s {
 struct ParseTreeNode {
     parse_tree_type_t type;
     unsigned int num_children = 0;
+    unsigned int curr_child = 0;
     ParseTreeNode ** children = 0;
 
     int i_operator = 0;

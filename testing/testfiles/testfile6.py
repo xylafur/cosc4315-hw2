@@ -7,7 +7,7 @@ def f():
    # comment fails here
       l = y
    if z > l:
-   # also fails because of bad indent comment but also '>' comparison fails
+# also fails because of bad indent comment but also '>' comparison fails
       l = z
    return l
 

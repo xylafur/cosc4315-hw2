@@ -6,57 +6,53 @@
 #include <stack>
 #include <string>
 
-#define INS_ADDR_MASK 0x00ffffffffffffff
-
 // bytecode instruction set
 enum ByteCode_ISET : uint8_t {
-  nop,    // no operation
-  addi,    // add on operand stack
-  subi,    // subtract on operand stack
-  muli,    // multiply on operand stack
-  divi,    // divide on operand stack
+  nop  = 0x00,   // no operation
 
-  bo_and,  // boolean and
-  bo_or,   // boolean or
+  addi = 0x01,   // add on operand stack
+  subi = 0x02,   // subtract on operand stack
+  muli = 0x03,   // multiply on operand stack
+  divi = 0x04,   // divide on operand stack
+  bo_and = 0x05, // boolean and
+  bo_or  = 0x06, // boolean or
 
-  cmp_lt,  // less than comparison
-  cmp_lte, // less than or equal comparison
-  cmp_gt,  // greater than comparison
-  cmp_gte, // greater than or equal comparison
-  cmp_eq,  // equal comparison
+  cmp_lt  = 0x07, // less than comparison
+  cmp_lte = 0x08, // less than or equal comparison
+  cmp_gt  = 0x09, // greater than comparison
+  cmp_gte = 0x0a, // greater than or equal comparison
+  cmp_eq  = 0x0b, // equal comparison
+  cmp_neq = 0x0c, // not equal comparison
 
-  assn,   // assignment 
-  deref,  // dereference reference on top of operand stack
+  assn  = 0x0d,   // assignment to function stack variable reference
+  deref = 0x0e,   // dereference reference on top of operand stack
 
-  print_i,  // output integer to std_out
-  print_ir, // output integer to std_out
-  print_sc, // output string constant to std_out
-  print_sp, // output space character to std_out
+  print_i  = 0x0f,  // output integer from top of operand stack to std_out
+  print_sc = 0x11, // output string constant to std_out
+  print_sp = 0x12, // output space character to std_out
 
-  o_push_const_ri, // push reference of integer in main program on top of operand stack
-  o_push_const_rs, // push reference of string on top of operand stack
-  o_push_const_rr, // push a reference to stack frame variables on operand stack
+  o_push_const_ri = 0x13, // push reference of integer in main program on top of operand stack
+  o_push_const_rs = 0x14, // push reference of string on top of operand stack
+  o_push_const_rr = 0x15, // push a reference to stack frame variables on operand stack
 
-  o_pop,   // pop an operand from top of stack, same as discard
+  o_pop = 0x16,   // pop an operand from top of stack, same as discard
 
-  o_popN,  // pop N operands off operand stack
-  o_clear, // clear operand stack
+  o_popN  = 0x17,  // pop N operands off operand stack
+  o_clear = 0x18, // clear operand stack
 
-  f_push,   // push a function stack, same as calling
-            // will place return value of function on top of operand stack of 
-            // the function / scope that called it
+  f_push  = 0x19,  // push a function stack, same as calling
+                   // will place return value of function on top of operand stack of 
+                   // the function / scope that called it
 
-  f_return,     // return from a function
+  f_return = 0x1a,     // return from a function
+  f_return_item = 0x1b, // return an item from top of operand_stack
 
-  f_return_item,// return an item from top of operand_stack
+  branch_if_f = 0x1c, // branch if top of operand stack is true -> go forwards
+  branch_if_b = 0x1d, // branch if top of operand stack is true -> go backwards
+  branch_f = 0x1c,    // jump forward
+  branch_b = 0x1d,    // branch backward
 
-  branch_if,    // branch if item at top of operand stack is true
-                //  item must be either an integer or a reference to an integer
-                //  cannot be a string
-
-  branch,       // jump to address
-
-  exit_prog          // terminate program
+  exit_prog = 0xff  // terminate program
 };
 
 enum Operand_type : uint8_t {

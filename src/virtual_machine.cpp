@@ -13,16 +13,18 @@ int run(uint64_t *main_program, size_t length) {
 
 
   uint64_t ins, pc=0;
+  uint64_t ref;
   uint8_t bcode;
 
   int64_t a, b; // temp registers a and b
-  uint64_t ref; // temp registers a and b
   Operand temp(a); // temp operand
 
 
+  /*
   #define VAL() operand_stack.top().value;\
                 operand_stack.pop();\
                 operand_stack_scope.top()--
+                */
 
   #define DEREF() ((operand_stack.top().o_type == reference_ot) ?\
                    (function_stack_variables.top()[operand_stack.top().reference]) :\
@@ -40,15 +42,15 @@ int run(uint64_t *main_program, size_t length) {
                         operand_stack.push(temp);\
                         operand_stack_scope.top()++
 
+  #define DECODE() bcode = ins & 0xff; ref = ins >> 8;
+
   while (pc < length) {
     ins = main_program[pc++];
-    bcode = ins >> 56;
+    DECODE();
 
     switch (bcode) {
-      case ByteCode_ISET::nop:
-        break;
-      case ByteCode_ISET::exit_prog:
-        return (ins & INS_ADDR_MASK);
+      case ByteCode_ISET::nop: break;
+      case ByteCode_ISET::exit_prog: return arg;
 
       case ByteCode_ISET::addi:
         assert(operand_stack_scope.top() >= 2);
@@ -84,10 +86,13 @@ int run(uint64_t *main_program, size_t length) {
       case ByteCode_ISET::cmp_eq:
         assert(operand_stack_scope.top() >= 2);
         ABO(==); break;
+      case ByteCode_ISET::cmp_neq:
+        assert(operand_stack_scope.top() >= 2);
+        ABO(!=); break;
 
       case ByteCode_ISET::print_i: // output integer on top of operand stack
         assert(operand_stack_scope.top() >= 1);
-        a = VAL();
+        a = DEREF();
         cout << a;
         break;
 
@@ -114,7 +119,7 @@ int run(uint64_t *main_program, size_t length) {
         break;
 
       case ByteCode_ISET::o_push_const_ri:
-        ref = (ins & INS_ADDR_MASK) >> 3;
+        ref = ref >> 3; // may change in the future to be int addr not byte addr
         a = (int64_t)(main_program[ref]);
         temp = Operand(a);
         operand_stack.push(temp);
@@ -122,7 +127,6 @@ int run(uint64_t *main_program, size_t length) {
         break;
 
       case ByteCode_ISET::o_push_const_rr:
-        ref = (ins & INS_ADDR_MASK);
         temp = Operand(ref);
         operand_stack.push(temp);
         operand_stack_scope.top()++;
@@ -135,10 +139,9 @@ int run(uint64_t *main_program, size_t length) {
         break;
 
       case ByteCode_ISET::o_popN:
-        a = (ins & INS_ADDR_MASK);
-        assert(a >= 0 && a <= operand_stack_scope.top());
-        for (b = a; b > 0; b--) operand_stack.pop();
-        operand_stack_scope.top() -= a;
+        assert(ref >= 0 && ref <= operand_stack_scope.top());
+        for (b = ref; b > 0; b--) operand_stack.pop();
+        operand_stack_scope.top() -= ref;
         break;
 
       case ByteCode_ISET::o_pop:
@@ -158,16 +161,20 @@ int run(uint64_t *main_program, size_t length) {
 
       case ByteCode_ISET::f_push:
         function_stack.push(pc);
-        pc = (ins & (INS_ADDR_MASK >> 8)) >> 3;
-        a  = (ins & INS_ADDR_MASK) >> 48;
+        a   = ref & 0xff;
+        pc  = ref >> (8+3);
         function_stack_variables.push(vector<int64_t>(a,0));
         operand_stack_scope.push(0);
         break;
 
-      case ByteCode_ISET::branch_if:
-        a = VAL(); if (!a) break;
-      case ByteCode_ISET::branch:
-        pc = (ins & INS_ADDR_MASK) >> 3; break;
+      case ByteCode_ISET::branch_if_f:
+        a = DEREF(); if (!a) break;
+      case ByteCode_ISET::branch_f:
+        pc += (ref >> 3); break;
+      case ByteCode_ISET::branch_if_b:
+        a = DEREF(); if (!a) break;
+      case ByteCode_ISET::branch_b:
+        pc -= (ref >> 3); break;
     }
   }
 
