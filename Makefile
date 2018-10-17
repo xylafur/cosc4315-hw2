@@ -14,13 +14,16 @@ PARSER_HEADER=$(INCLUDE)parser.tab.h
 PARSER_DEBUG_FLAGS=-Wconflicts-sr --debug --report=all
 PARSER_OBJECT=$(OBJECTS_DIR)parse.o
 
+UTIL_INPUT=$(SOURCE)node_util.cpp
+UTIL_OBJECT=$(OBJECTS_DIR)node_util.o
+
 AST=$(SOURCE)ast.cpp
 AST_OBJECT=$(OBJECTS_DIR)ast.o
 
 MAIN=$(SOURCE)main.cpp
 MAIN_OBJECT=$(OBJECTS_DIR)main.o
 
-OBJECTS=$(LEX_OBJECT) $(PARSER_OBJECT) $(AST_OBJECT) $(MAIN_OBJECT)
+OBJECTS=$(LEX_OBJECT) $(PARSER_OBJECT) $(AST_OBJECT) $(MAIN_OBJECT) $(UTIL_OBJECT)
 
 CC=g++
 CC_FLAGS=-std=c++11 -I $(INCLUDE)
@@ -31,7 +34,7 @@ mypython: $(OBJECTS)
 	$(CC) $(CC_FLAGS) -o $(OUTPUT) $(OBJECTS)
 
 $(LEX_OBJECT): objects parser lexer
-	gcc $(CC_FLAGS) -c $(LEX_OUTPUT) -o $(LEX_OBJECT)
+	gcc -I $(INCLUDE) -c $(LEX_OUTPUT) -o $(LEX_OBJECT)
 
 $(PARSER_OBJECT): objects parser $(LEX_OBJECT)
 	$(CC) $(CC_FLAGS) -c $(PARSER_OUTPUT) -o $(PARSER_OBJECT)
@@ -41,6 +44,9 @@ $(AST_OBJECT): objects
 
 $(MAIN_OBJECT): objects
 	$(CC) $(CC_FLAGS) -c $(MAIN) -o $(MAIN_OBJECT)
+
+$(UTIL_OBJECT): objects
+	$(CC) $(CC_FLAGS) -c $(UTIL_INPUT) -o $(UTIL_OBJECT)
 
 lexer:
 	$(LEXER) -o $(LEX_OUTPUT) $(LEX_INPUT) 
