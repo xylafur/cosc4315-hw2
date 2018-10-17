@@ -5,36 +5,39 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include "parser.tab.h"
 
 typedef enum parse_tree_type_s {
-    PROGRAM,
+    PROGRAM_NODE,
 
-    BLOCK_STMT,
-    MULT_STMTS,
+    BLOCK_STMT_NODE,
+    MULT_STMTS_NODE,
 
-    FUNC_DEF,
-    BRANCH_STMT_NO_ELSE,
-    BRANCH_STMT_ELSE,
+    FUNC_DEF_NODE,
+    BRANCH_STMT_NO_ELSE_NODE,
+    BRANCH_STMT_ELSE_NODE,
 
-    PRINT_STMT,
-    ASSIGN,
-    FUNC_CALL,
-    RETURN_STMT,
+    PRINT_STMT_NODE,
+    ASSIGNMENT_NODE,
+    FUNC_CALL_NODE,
+    RETURN_STMT_NODE,
 
-    EXPR,
-    STRING,
-    NUMBER,
+    EXPR_NODE,
+    STRING_NODE,
+    NUMBER_NODE,
 
-    IDENTIFIER
+    IDENTIFIER_NODE
 } parse_tree_type_t;
 
 #define node_ptr struct ParseTreeNode *
 #define node_array struct ParseTreeNode **
 #define create_node(name) node_ptr name = new ParseTreeNode
-#define alloc_children(num) (node_array)malloc(sizeof(node_ptr) * num)
 
+#define alloc_children(num) (node_array)malloc(sizeof(node_ptr) * num)
 #define create_children(num) ret->num_children = num;       \
     ret->children = (node_array)malloc(sizeof(node_ptr) * num)
+#define assign_children() ret->num_children = num_children; \
+                          ret->children = children
 
 #define copy_sval(name) size_t length = strlen(name); \
                         ret->value.s_value = (char*)malloc(length);\
@@ -45,7 +48,6 @@ struct ParseTreeNode {
     unsigned int num_children = 0;
     ParseTreeNode ** children = 0;
 
-    char c_operator = 0;
     int i_operator = 0;
 
     union value {
@@ -54,10 +56,34 @@ struct ParseTreeNode {
     } value;
 };
 
-struct ParseTreeNode * create_number_node (long value);
-struct ParseTreeNode * create_expr_node(char c_operator, int num_children,
-                                        ParseTreeNode ** children);
+node_ptr create_program_node(int num_children, node_array children);
 
-void destroy_node (parse_tree_type_t type, ParseTreeNode * node);
+node_ptr create_number_node (long value);
+
+node_ptr create_expr_node(int i_operator, int num_children,
+                          node_array children);
+
+node_ptr create_string_node(char * value);
+
+node_ptr create_identifier_node(char * name);
+
+node_ptr create_assignment_node(node_ptr ident, node_ptr value);
+
+node_ptr create_print_node(int num_children, node_array children);
+
+node_ptr create_block_stmt_node(int num_stmts, node_array stmts);
+
+node_ptr create_func_def_node(char* name, node_ptr block_stmt);
+
+node_ptr create_branch_no_else_node(node_ptr condition, node_ptr block);
+
+node_ptr create_branch_with_else_node(node_ptr condition, node_ptr if_block,
+                                      node_ptr else_block);
+
+node_ptr create_func_call_node(char * name);
+
+node_ptr create_return_stmt(node_ptr ret_val);
+
+void destroy_tree(ParseTreeNode * root);
 #endif
 

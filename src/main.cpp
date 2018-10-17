@@ -1,6 +1,8 @@
 #include <stdio.h>
 
 #include "parser.tab.h"
+#include "ast.h"
+#include "node_util.h"
 
 extern FILE *yyin;
 
@@ -12,4 +14,7 @@ int main (int argc, char * argv[])
     }
 
     yyparse();
+    create_program();
+    print_stack();
+
 }

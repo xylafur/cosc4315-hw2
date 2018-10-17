@@ -1,57 +1,140 @@
 #include "node_util.h"
 
-void print_tree(ParseTreeNode * root, int indent_level)
+void get_oper(node_ptr node, char oper [4])
 {
-    for(int ii = 0; ii < indent_level; ii++)
-        printf("    ");
+    switch(node->i_operator){
+    case PLUS:
+        oper[0] = '+';
+        oper[1] = '\0';
+        break;
+    case MINUS:
+        oper[0] = '-';
+        oper[1] = '\0';
+        break;
+    case STAR:
+        oper[0] = '*';
+        oper[1] = '\0';
+        break;
+    case SLASH:
+        oper[0] = '/';
+        oper[1] = '\0';
+        break;
+    case EQUALSEQUALS:
+        oper[0] = '=';
+        oper[1] = '=';
+        oper[2] = '\0';
+        break;
+    case AND:
+        oper[0] = 'a';
+        oper[1] = 'n';
+        oper[2] = 'd';
+        oper[3] = '\0';
+        break;
+    case OR:
+        oper[0] = 'o';
+        oper[1] = 'r';
+        oper[2] = '\0';
+        break;
+    }
+}
 
-    switch(root->type){
-        case PROGRAM:
+void print_node_type(node_ptr node)
+{
+    switch(node->type){
+        case PROGRAM_NODE:
             printf("PROGRAM\n");
             break;
-        case MULT_STMTS:
+        case MULT_STMTS_NODE:
             printf("MULT_STMTS\n");
             break;
-        case FUNC_DEF:
-            printf("FUNC_DEF: %s\n", root->value.s_value);
+        case FUNC_DEF_NODE:
+            printf("FUNC_DEF: %s\n", node->value.s_value);
             break;
-        case BLOCK_STMT:
+        case BLOCK_STMT_NODE:
             printf("BLOCK STMT\n");
             break;
-        case BRANCH_STMT_NO_ELSE:
+        case BRANCH_STMT_NO_ELSE_NODE:
             printf("BRANCH_STMT_NO_ELSE\n");
             break;
-        case BRANCH_STMT_ELSE:
+        case BRANCH_STMT_ELSE_NODE:
             printf("BRANCH_STMT_ELSE\n");
             break;
-        case PRINT_STMT:
+        case PRINT_STMT_NODE:
             printf("PRINT_STMT\n");
             break;
-        case ASSIGN:
+        case ASSIGNMENT_NODE:
             printf("ASSIGN\n");
             break;
-        case FUNC_CALL:
+        case FUNC_CALL_NODE:
             printf("FUNC_CALL\n");
             break;
-        case RETURN_STMT:
+        case RETURN_STMT_NODE:
             printf("RETURN_STMT\n");
             break;
-        case EXPR:
-            printf("EXPR\n");
+        case EXPR_NODE:
+            char oper [4];
+            get_oper(node, oper);
+            printf("EXPR: %s\n", oper);
             break;
-        case STRING:
-            printf("STRING\n");
+        case STRING_NODE:
+            printf("STRING: %s\n", node->value.s_value);
             break;
-        case NUMBER:
-            printf("NUMBER: %d\n", root->value.n_value);
+        case NUMBER_NODE:
+            printf("NUMBER: %d\n", node->value.n_value);
             break;
-        case IDENTIFIER:
-            printf("IDENTIFIER: %s\n", root->value.s_value);
+        case IDENTIFIER_NODE:
+            printf("IDENTIFIER: %s\n", node->value.s_value);
             break;
         default:
             break;
     }
+}
+
+void print_tree(ParseTreeNode * root, int indent_level)
+{
+    for(int ii = 0; ii < indent_level; ii++)
+        printf("    ");
+    print_node_type(root);
+
     for(int ii = 0; ii < root->num_children; ii++){
         print_tree(root->children[ii], indent_level + 1);
     }
+}
+
+#define STACK_SIZE 1024
+node_ptr node_stack [STACK_SIZE];
+unsigned int stack_pos = 0;
+
+void push_node_to_stack(node_ptr node)
+{
+    node_stack[stack_pos++] = node;
+}
+
+node_ptr pop_node_from_stack()
+{
+    if(stack_pos == 0){
+        printf("THE STACK IS EMPTY YOU FUCKING IDIOT\n");
+    }
+    return node_stack[--stack_pos];
+}
+
+
+void print_stack()
+{
+    printf("There are %d nodes in the stack!\n", stack_pos);
+    while(stack_pos){
+        node_ptr node = pop_node_from_stack();
+        print_tree(node, 0);
+    }
+}
+
+void create_program()
+{
+    node_array children = alloc_children(stack_pos);
+    int len = stack_pos;
+    for(int ii = 0; ii < len; ii++){
+        children[len - ii - 1] = pop_node_from_stack();
+    }
+    node_ptr program = create_program_node(len, children);
+    push_node_to_stack(program);
 }
