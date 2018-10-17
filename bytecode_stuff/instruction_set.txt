@@ -1,0 +1,48 @@
+======================================
+(M) print program
+(R) replace line - 'R:#,0 0 0 0 0 0 0 0'
+(W) write ins   - 'W:0 0 0 0 0 0 0 0'
+(S) write string   - 'S:"asdf..."'
+(I) print codes
+(anything else) write to file and quit
+======================================
+ user_input ->  I
+nop : 0
+addi : 1
+subi : 2
+muli : 3
+divi : 4
+bo_and : 5
+bo_or : 6
+cmp_lt : 7
+cmp_lte : 8
+cmp_gt : 9
+cmp_gte : 10
+cmp_eq : 11
+assn : 12
+deref : 13
+print_i : 14
+print_ir : 15
+print_sc : 16
+print_sp : 17
+o_push_const_ri : 18
+o_push_const_rs : 19
+o_push_const_rr : 20
+o_pop : 21
+o_popN : 22
+o_clear : 23
+f_push : 24
+f_return : 25
+f_return_item : 26
+branch_if : 27
+branch : 28
+exit_prog : 29
+======================================
+(M) print program
+(R) replace line - 'R:#,0 0 0 0 0 0 0 0'
+(W) write ins   - 'W:0 0 0 0 0 0 0 0'
+(S) write string   - 'S:"asdf..."'
+(I) print codes
+(anything else) write to file and quit
+======================================
+ user_input ->  Q

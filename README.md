@@ -166,6 +166,19 @@ RUNNING THE BYTECODE VM
 
     this will print out 6
 
+    The file hello.txt implements this program
+        print("Hello, World!")
+
+    To write your own bytecode simply follow the style as the sample txt files
+        -> A line which does not match an editor instruction is assumed to be
+            the name of the file to output the binary
+
+    then compile it like this:
+        ./editor.py < [name of editor file]
+
+    then run it like this
+        ./breader [name of saved binary]
+
     Currently the virtual_machine has support for recursion as it has a working
     function stack which stores the program counters to return to and proper
     function stack frame variables.

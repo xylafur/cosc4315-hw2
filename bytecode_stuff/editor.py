@@ -119,11 +119,11 @@ while True:
 
    elif action == 'S':
       line = [ord(i) for i in eval(data)]
-      line += [0]*(8 - (len(data) % 8))
+      line += [0] * (9 - (len(data) % 8))
 
-      print('You entered: ', line)
+      print('You entered: ', line, len(line))
       for i in range(len(line) // 8):
-         l = line[i*8:(i+1)*8]
+         l = line[i*8 : (i+1)*8]
          print(l)
          program.append(l)
 
