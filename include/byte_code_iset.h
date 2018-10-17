@@ -33,9 +33,9 @@ enum ByteCode_ISET : uint8_t {
   print_sc, // output string constant to std_out
   print_sp, // output space character to std_out
 
-  o_push_const_ri, // push reference of integer on top of operand stack
+  o_push_const_ri, // push reference of integer in main program on top of operand stack
   o_push_const_rs, // push reference of string on top of operand stack
-  o_push_const_rr, // push reference on top of operand stack
+  o_push_const_rr, // push a reference to stack frame variables on operand stack
 
   o_pop,   // pop an operand from top of stack, same as discard
 
