@@ -1,0 +1,5 @@
+W: 16 0 0 0 0 0 0 16      # 0x0000 Print string constant
+W: 29 0 0 0 0 0 0 0      # 0x0190 end program
+S: "Hello, World!\n"     # string constant hello
+M
+hello
