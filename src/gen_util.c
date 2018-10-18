@@ -1,11 +1,21 @@
+/*  
+ *  THis module is for some general utility functions that were needed by the
+ *  virtual machine.  Should probably be moved to a file named vm_util
+ *
+ *  It creates some datastructues that represent all of the string literals and
+ *  integer literals for convienience to the virtual machine
+ *
+ *  For information about the data structures used consult the headder file at
+ *  cosc4315-hw2/include/gen_util.h
+ */
+
 #include "gen_util.h"
 
-#define MAX_LITERAL_LIST_SIZE 256
 unsigned int literal_list_size = 0;
 struct literal literal_list [MAX_LITERAL_LIST_SIZE];
 
 unsigned int int_literals_size;
-int int_literals [1024];
+int int_literals [MAX_NUM_LITERALS];
 
 void add_literal(struct literal lit)
 {

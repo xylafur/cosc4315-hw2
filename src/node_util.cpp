@@ -1,3 +1,8 @@
+/*  Helper functions of the AST module.. it should probably be merged with the
+ *  AST module because they have many of the same ufncitonalities.  The print
+ *  stmts are just very long because of the huge switch so I wanted to get it
+ *  out of the ast file
+ */
 #include "node_util.h"
 
 void get_oper(node_ptr node, char oper [4])
@@ -119,7 +124,6 @@ void print_tree(ParseTreeNode * root, int indent_level)
     }
 }
 
-#define STACK_SIZE 1024
 node_ptr node_stack [STACK_SIZE];
 unsigned int stack_pos = 0;
 
