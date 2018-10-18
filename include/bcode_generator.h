@@ -36,12 +36,10 @@ struct Block {
   }
 };
 
-struct I
-
 struct FunctionDef {
   map<string, uint8_t> scope;
   vector<Instruction> instructions;
-}
+};
 
 void generate(node_ptr root);
 void process_func_decl();
