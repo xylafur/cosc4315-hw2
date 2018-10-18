@@ -1,6 +1,7 @@
 %{
 #include <stdio.h>
 #include "parser.tab.h"
+#include "gen_util.h"
 
 unsigned int global_indent_level = 0;
 unsigned int dedent_count = 0;
@@ -48,7 +49,13 @@ or                          return OR;
 
 [0-9]*\.[0-9]+              yylval.real=atof(yytext); return REAL;
 [0-9]+\.[0-9]*              yylval.real=atof(yytext); return REAL;
-[0-9]+                      yylval.num=atoi(yytext); return NUMBER;
+[0-9]+                      {
+                                yylval.num=atoi(yytext);
+                                struct literal lit = {.type = 0};
+                                lit.value.n_val = yylval.num;
+                                add_literal(lit);
+                                return NUMBER;
+                            }
 
 ==                          return EQUALSEQUALS;
 \>=                          return GREATEREQUALS;
@@ -69,8 +76,37 @@ or                          return OR;
 
 \\                          return BACKSLASH;
 
-\"[^\"\n]*\"        yylval.str=strdup(yytext); return STRING;
-\'[^\'\n]*\'        yylval.str=strdup(yytext); return STRING;
+\"[^\"\n]*\"                {
+                                yylval.str=strdup(yytext);
+                                strcpy(yylval.str, yylval.str + 1);
+                                int ii, len = strlen(yylval.str);
+                                for(ii = 0; ii < len; ii++){
+                                    if(yylval.str[ii] == '"'){
+                                        yylval.str[ii] = '\0';
+                                        break;
+                                    }
+                                }
+                                struct literal lit = {.type = 1};
+                                strcpy(lit.value.s_val, yylval.str);
+                                add_literal(lit);
+                                return STRING;
+                            }
+
+\'[^\'\n]*\'                {
+                                yylval.str=strdup(yytext);
+                                strcpy(yylval.str, yylval.str + 1);
+                                int ii, len = strlen(yylval.str);
+                                for(ii = 0; ii < len; ii++){
+                                    if(yylval.str[ii] == '\''){
+                                        yylval.str[ii] = '\0';
+                                        break;
+                                    }
+                                }
+                                struct literal lit = {.type = 1};
+                                strcpy(lit.value.s_val, yylval.str);
+                                add_literal(lit);
+                                return STRING;
+                            }
 
 [a-zA-Z][a-zA-Z0-9_]*       yylval.str=strdup(yytext); return IDENTIFIER;
 #[^\n]+                     /*  Just consume    */
