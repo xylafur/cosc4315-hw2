@@ -25,6 +25,11 @@ OUTPUT:
     all of these testfiles output the correct AST except for cases 6 and 7
         the reason for this failure is mentioned in the limitations
 
+DOCUMENTATION:
+    All of c*/ bison/ flex files are commented, see them for information about
+    how a particular part of the program operates.  The header files are not
+    all commented though
+
 
 LIMITATIONS:
     The AST is not converted into the bytecode and executed by the VM:

@@ -9,11 +9,16 @@ int cached_token = 0;
 int token = 0;
 int first_in_line = 1;
 
+/* this is used to keep track of groupings of stmts that corespond to a
+ * particular block
+ */
 #define MAX_STMT_STACK_SIZE 1024
 int stmt_stack [MAX_STMT_STACK_SIZE];
 int num_stmts = 0;
 int stmt_stack_pos = 0;
 
+//helper functions that manipulate the stmt stack.  SUpposed to represent the
+//scope of a block
 void enter_block()
 {
     stmt_stack[stmt_stack_pos++] = num_stmts;
@@ -50,6 +55,10 @@ or                          return OR;
 [0-9]*\.[0-9]+              yylval.real=atof(yytext); return REAL;
 [0-9]+\.[0-9]*              yylval.real=atof(yytext); return REAL;
 [0-9]+                      {
+                                /* the literal struct was going to be placed
+                                 * inside a global structure which would be
+                                 * used by the converter
+                                 */
                                 yylval.num=atoi(yytext);
                                 struct literal lit = {.type = 0};
                                 lit.value.n_val = yylval.num;
@@ -76,10 +85,12 @@ or                          return OR;
 
 \\                          return BACKSLASH;
 
-\"[^\"\n]*\"                {
+\"[^\"\n]*\"                {   
+                                //sadly no escape sequence support
                                 yylval.str=strdup(yytext);
                                 strcpy(yylval.str, yylval.str + 1);
                                 int ii, len = strlen(yylval.str);
+                                //we strip out all of the " characters
                                 for(ii = 0; ii < len; ii++){
                                     if(yylval.str[ii] == '"'){
                                         yylval.str[ii] = '\0';
