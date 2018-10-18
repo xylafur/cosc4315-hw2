@@ -14,8 +14,13 @@ METHODOLOGY:
 
     We are able to lex, parse and create the AST in a single pass.
 
+
 OUTPUT:
     The mypython program will output the AST.
+
+    There are testcases located at testing/testfiles/*.py
+    all of these testfiles output the correct AST except for cases 6 and 7
+        the reason for this failure is mentioned in the limitations
 
 
 LIMITATIONS:
@@ -52,4 +57,7 @@ LIMITATIONS:
 
 
 HOW TO VERIFY THE BYTECODE WORKS CORRECTLY:
+    Currently there is no way to verify this.  There was, but last minute
+    changes broke it.  Consider this a placeholder, if my partner is able to
+    fix his code then we will add instructions on how to run a bytecode file
 
