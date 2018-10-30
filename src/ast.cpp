@@ -73,9 +73,16 @@ node_ptr create_assignment_node(node_ptr ident, node_ptr value)
     create_node(ret);
     ret->type = ASSIGNMENT_NODE;
     ret->num_children = 2;
-    ret->children = (ParseTreeNode **)malloc(sizeof(node_ptr) * 2);
+    ret->children = alloc_children(2);
     ret->children[0] = ident;
-    ret->children[1] = value;
+    if(value->type == EXPR_NODE){
+        ret->children[1] = value;
+    }else{
+        node_array children = alloc_children(1);
+        children[0] = value;
+        node_ptr temp = create_expr_node(SINGLE, 1, children);
+        ret->children[1] = temp;
+    }
 
     return ret;
 }

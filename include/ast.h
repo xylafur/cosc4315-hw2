@@ -33,6 +33,7 @@ typedef enum parse_tree_type_s {
 #define node_ptr struct ParseTreeNode *
 #define node_array struct ParseTreeNode **
 #define create_node(name) node_ptr name = new ParseTreeNode
+#define delete_node(name) delete name
 
 #define alloc_children(num) (node_array)malloc(sizeof(node_ptr) * num)
 #define create_children(num) ret->num_children = num;       \
