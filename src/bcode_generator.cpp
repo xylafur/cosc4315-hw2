@@ -2,6 +2,98 @@
 #include "bcode_generator.h"
 using namespace std;
 
+#define MAX_PROGRAM_LEN (1024*1024)
+
+struct block {
+    unsigned int num_nodes;
+    uint64_t * bytecode;
+};
+
+
+//I felt like having a function for each of the inst creation types would make
+//things cleaner down below
+uint64_t create_ident_inst(char * name)
+{
+    return 0;
+}
+
+uint64_t create_expr_inst(int oper)
+{
+    switch(oper){
+    case SINGLE:
+        break
+    case PLUS:
+        break;
+    }
+}
+
+uint64_t create_string_inst(int oper)
+{
+    return 0;
+}
+
+#define alloc_program() (uint64_t*)malloc(MAX_PROGRAM_LEN * sizeof(uint64_t));
+#define create(type, arg) program[pc++] = create_type_inst(arg); \
+                          block_size_stack.top()++
+
+void generate(node_ptr root){
+    //the node stack keep strack of the block stmt nodes
+    stack<node_array> node_stack;
+    //the block size stack keeps track of the # of instructions per block
+    stack<unsigned int> block_size_stack;
+    //the actual stack of blocks
+    stack<block> block_stack;
+    block_stack.push(block);
+
+    uint64_t * program = alloc_program();
+    unsigned int pc = 0;
+   
+    node_ptr current = root;
+    node_stack.push(current);
+    block_size_stack.push(0);
+
+
+    while (node_stack.size()) {
+        current = node_stack.top();
+        if (current->num_children == current->curr_child ) { 
+            switch(current->type){
+            //we can handle most things just on the way up, we can just write
+            //them directly to the program
+            case IDENTIFIER_NODE:
+                create(ident, current->value.s_value);
+                break;
+            case EXPR_NODE:
+                create(expr, current->i_operator);
+                break;
+            case STRING_NODE:
+                create(string, current->value.s_value);
+                break;
+            case NUMBER_NODE:
+                break;
+
+
+            //we just need to store the program that is for this block and then
+            //wipe the program for the parent
+            case BLOCK_STMT_NODE:
+                block_stack.top().bytecode = program;
+                program = alloc_program();
+                break;
+            }
+            node_stack.pop();
+        //else is the case where this is not the right most child of a node
+        }else{
+            switch(current->type){
+            //if we enter a block stmt we have to keep track of this blocks isnt
+            case BLOCK_STMT_NODE:
+                block_size_stack.push(0);
+                block_stack.push(block);
+                break;
+            }
+            node_stack.push(current->children[current->curr_child++]);
+        }
+}
+
+/*
 void generate(ParseTreeNode *root, vector<literal> constants) {
   // need a datastructure to keep track of constants
   vector<Instruction> main_program;
@@ -168,8 +260,4 @@ void generate(ParseTreeNode *root, vector<literal> constants) {
 
   
 }
-
-
-
-
-
+*/
