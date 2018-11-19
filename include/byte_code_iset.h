@@ -6,35 +6,45 @@
 #include <stack>
 #include <string>
 
-#define INS_ADDR_MASK 0x00ffffffffffffff
 
 // bytecode instruction set
 enum ByteCode_ISET : uint8_t {
-  nop,    // no operation
-  addi,    // add on operand stack
-  subi,    // subtract on operand stack
-  muli,    // multiply on operand stack
-  divi,    // divide on operand stack
+  nop,     // no operation
 
+  // arithmetic consumes two operands from operand stack
+  addi,    // add integers
+  subi,    // subtract integers
+  muli,    // multiply integers
+  divi,    // divide
+
+  // boolean ands and or consumer two operands on operand stack
   bo_and,  // boolean and
   bo_or,   // boolean or
 
+  // comparisons consume two operands on operand stack
   cmp_lt,  // less than comparison
   cmp_lte, // less than or equal comparison
   cmp_gt,  // greater than comparison
   cmp_gte, // greater than or equal comparison
   cmp_eq,  // equal comparison
 
-  assn,   // assignment 
-  deref,  // dereference reference on top of operand stack
+  assn,   // assignment , consumes two operands on operand stack
 
-  print_i,  // output integer to std_out
-  print_ir, // output integer to std_out
-  print_sc, // output string constant to std_out
+  deref,  // DO NOT USE, dereference reference on top of operand stack
+
+  print_i,  // output integer to std_out, consumes operand on operand stack
+
+  print_so, // output string constant to std_out, consumes operand
+            // on the stack assumed to be a constant reference
+
+  print_si, // print string where address is in argument of instruction, 
+            // does not consume operand on top of stack
+
   print_sp, // output space character to std_out
 
-  o_push_const_ri, // push reference of integer in main program on top of operand stack
-  o_push_const_rs, // push reference of string on top of operand stack
+
+  o_push_const_ri, // push reference of integer literal in main program on top of operand stack
+  o_push_const_rs, // push reference of string literal on top of operand stack
   o_push_const_rr, // push a reference to stack frame variables on operand stack
 
   o_pop,   // pop an operand from top of stack, same as discard
@@ -46,7 +56,7 @@ enum ByteCode_ISET : uint8_t {
             // will place return value of function on top of operand stack of 
             // the function / scope that called it
 
-  f_return,     // return from a function
+  f_return,     // DO NOT USE, return from a function
 
   f_return_item,// return an item from top of operand_stack
 

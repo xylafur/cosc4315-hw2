@@ -2,37 +2,51 @@ SOURCE=./src/
 INCLUDE=./include/
 OBJECTS_DIR=./objects/
 
+PARSING_SOURCE=$(SOURCE)parsing/
+UTIL_SOURCE=$(SOURCE)util/
+EXECUTION_SOURCE=$(SOURCE)virtual_machine/
+
 LEXER=flex
-LEX_INPUT=$(SOURCE)lexer.l
-LEX_OUTPUT=$(SOURCE)lex.yy.c
+LEX_INPUT=$(PARSING_SOURCE)lexer.l
+LEX_OUTPUT=$(PARSING_SOURCE)lex.yy.c
 LEX_OBJECT=$(OBJECTS_DIR)lex.o
 
 PARSER=bison
-PARSER_INPUT=$(SOURCE)parser.y
-PARSER_OUTPUT=$(SOURCE)parser.tab.c
+PARSER_INPUT=$(PARSING_SOURCE)parser.y
+PARSER_OUTPUT=$(PARSING_SOURCE)parser.tab.c
 PARSER_HEADER=$(INCLUDE)parser.tab.h
 PARSER_DEBUG_FLAGS=-Wconflicts-sr --debug --report=all
 PARSER_OBJECT=$(OBJECTS_DIR)parse.o
 
-UTIL_INPUT=$(SOURCE)node_util.cpp
-UTIL_OBJECT=$(OBJECTS_DIR)node_util.o
-
-AST=$(SOURCE)ast.cpp
+AST=$(PARSING_SOURCE)ast.cpp
 AST_OBJECT=$(OBJECTS_DIR)ast.o
 
-GEN_UTIL=$(SOURCE)gen_util.c
-GEN_UTIL_OBJECT=$(OBJECTS_DIR)gen_util.o
+AST_UTIL_INPUT=$(PARSING_SOURCE)node_util.cpp
+AST_UTIL_OBJECT=$(OBJECTS_DIR)node_util.o
 
-VIRTUAL_MACHINE=$(SOURCE)virtual_machine.cpp
+#the order here matters.  We need some of the things that the parser generates
+#before we can use it in the node util for instance
+PARSING_OBJECTS=$(LEX_OBJECT) $(PARSER_OBJECT) $(AST_UTIL_OBJECT) $(AST_OBJECT)
+
+
+GEN_UTIL=$(UTIL_SOURCE)gen_util.c
+GEN_UTIL_OBJECT=$(OBJECTS_DIR)gen_util.o
+UTIL_OBJECTS=$(GEN_UTIL_OBJECT)
+
+
+VIRTUAL_MACHINE=$(EXECUTION_SOURCE)virtual_machine.cpp
 VIRTUAL_MACHINE_OBJECT=$(OBJECTS_DIR)virtual_machine.o
 
-BCODE_GEN=$(SOURCE)bcode_generator.cpp
+BCODE_GEN=$(EXECUTION_SOURCE)bcode_generator.cpp
 BCODE_GEN_OBJECT=$(OBJECTS_DIR)bcode_gen.o
+
+EXECUTION_OBJECTS=$(VIRTUAL_MACHINE_OBJECT) $(BCODE_GEN_OBJECT)
+
 
 MAIN=$(SOURCE)main.cpp
 MAIN_OBJECT=$(OBJECTS_DIR)main.o
 
-OBJECTS=$(LEX_OBJECT) $(PARSER_OBJECT) $(AST_OBJECT) $(MAIN_OBJECT) $(UTIL_OBJECT) $(GEN_UTIL_OBJECT) #$(VIRTUAL_MACHINE_OBJECT) $(BCODE_GEN_OBJECT)
+OBJECTS=$(PARSING_OBJECTS) $(UTIL_OBJECTS) $(MAIN_OBJECT) #$(EXECUTION_OBJECTS)
 
 CC=g++
 CC_FLAGS=-std=c++11 -I $(INCLUDE)
@@ -57,8 +71,8 @@ $(AST_OBJECT): objects
 $(MAIN_OBJECT): objects
 	$(CC) $(CC_FLAGS) -c $(MAIN) -o $(MAIN_OBJECT)
 
-$(UTIL_OBJECT): objects
-	$(CC) $(CC_FLAGS) -c $(UTIL_INPUT) -o $(UTIL_OBJECT)
+$(AST_UTIL_OBJECT): objects
+	$(CC) $(CC_FLAGS) -c $(AST_UTIL_INPUT) -o $(AST_UTIL_OBJECT)
 
 $(VIRTUAL_MACHINE_OBJECT): objects
 	$(CC) $(CC_FLAGS) -c $(VIRTUAL_MACHINE) -o $(VIRTUAL_MACHINE_OBJECT)
@@ -71,7 +85,7 @@ lexer:
 
 parser:
 	$(PARSER) -o $(PARSER_OUTPUT) -d  $(PARSER_INPUT)
-	mv $(SOURCE)*.h $(INCLUDE)
+	mv $(PARSING_SOURCE)*.h $(INCLUDE)
 	sed -i 's/yylex/get_next_token/g' $(PARSER_OUTPUT)
 
 objects:
