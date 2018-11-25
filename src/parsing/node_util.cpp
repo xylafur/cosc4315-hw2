@@ -71,7 +71,12 @@ void print_node_type(node_ptr node)
             printf("MULT_STMTS\n");
             break;
         case FUNC_DEF_NODE:
-            printf("FUNC_DEF: %s\n", node->value.s_value);
+            printf("FUNC_DEF: %s -- ", node->value.s_value);
+            printf(" %d parameters: ", node->num_parameters);
+            for(int ii = 0; ii < node->num_parameters; ii++){
+                printf("%s, ", node->parameters[ii]);
+            }
+            printf("\n");
             break;
         case BLOCK_STMT_NODE:
             printf("BLOCK STMT w/ %d children\n", node->num_children);
@@ -131,6 +136,7 @@ void push_node_to_stack(node_ptr node)
 {
     node_stack[stack_pos++] = node;
 }
+
 
 node_ptr pop_node_from_stack()
 {

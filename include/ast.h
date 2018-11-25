@@ -36,20 +36,35 @@ typedef enum parse_tree_type_s {
 #define delete_node(name) delete name
 
 #define alloc_children(num) (node_array)malloc(sizeof(node_ptr) * num)
-#define create_children(num) ret->num_children = num;       \
+#define create_children(num) ret->num_children = num;                   \
     ret->children = (node_array)malloc(sizeof(node_ptr) * num)
-#define assign_children() ret->num_children = num_children; \
+#define assign_children() ret->num_children = num_children;             \
                           ret->children = children
 
-#define copy_sval(name) size_t length = strlen(name); \
-                        ret->value.s_value = (char*)malloc(length);\
+#define copy_sval(name) size_t length = strlen(name);                   \
+                        ret->value.s_value = (char*)malloc(length);     \
                         strcpy(ret->value.s_value, name)
+
+#define MAX_PARAMETER_LENGTH 64
+
+#define pop_parameters(num, arr)                                        \
+    char ** arr = new char *[num];                                      \
+    for(int ii = 0; ii < num; ii++){                                    \
+        node_ptr temp = pop_node_from_stack();                          \
+        arr[num - ii - 1] = new char [MAX_PARAMETER_LENGTH];            \
+        strcpy(arr[num - ii - 1], temp->value.s_value);                 \
+        free(temp->value.s_value); delete_node(temp);                   \
+    }
 
 struct ParseTreeNode {
     parse_tree_type_t type;
     unsigned int num_children = 0;
     unsigned int curr_child = 0;
     ParseTreeNode ** children = 0;
+
+    //this is only used for functions
+    unsigned int num_parameters = 0;
+    char ** parameters;
 
     int i_operator = 0;
 
@@ -79,6 +94,10 @@ node_ptr create_print_node(int num_children, node_array children);
 node_ptr create_block_stmt_node(int num_stmts, node_array stmts);
 
 node_ptr create_func_def_node(char* name, node_ptr block_stmt);
+
+node_ptr create_func_def_node(char * name, unsigned int number_parameters,
+                              char ** parameters, node_ptr block_stmt);
+
 
 node_ptr create_branch_no_else_node(node_ptr condition, node_ptr block);
 

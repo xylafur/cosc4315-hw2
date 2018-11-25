@@ -124,6 +124,23 @@ node_ptr create_func_def_node(char* name, node_ptr block_stmt)
 
     return ret;
 }
+node_ptr create_func_def_node(char * name, unsigned int number_parameters,
+                              char ** parameters, node_ptr block_stmt)
+{
+    create_node(ret);
+    ret->type = FUNC_DEF_NODE;
+
+    create_children(1);
+    ret->children[0] = block_stmt;
+    copy_sval(name);
+
+    ret->num_parameters = number_parameters;
+    ret->parameters = parameters;
+
+    return ret;
+}
+
+
 
 /*  Node represinting just a if statment with no else block.  The condition can
  *  be an expression and the block is expected to be a block stmt
@@ -184,6 +201,12 @@ void destroy_tree(ParseTreeNode * root)
     }
     if(root->num_children > 0)
         free(root->children);
+    if(root->num_parameters > 0){
+        for(int ii = 0; ii < root->num_parameters; ii++){
+            delete(root->parameters[ii]);
+        }
+        delete(root->parameters);
+    }
 
     if(root->type == STRING_NODE || root->type == IDENTIFIER_NODE ||
        root->type == FUNC_DEF_NODE)

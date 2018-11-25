@@ -30,6 +30,9 @@ void yyerror(const char * str)
 int mod = 1;
 int value_list_length = 0;
 
+#define inc_value_list() value_list_length += 1
+#define reset_value_list()  value_list_length = 0
+
 %}
 
 %token DEF RETURN PRINT IF ELSE FOR WHILE TRUE FALSE AND OR
@@ -78,8 +81,8 @@ mult_stmts: %empty
 
 single_stmt:    print_stmt
            |    assignment
-           |    value_list { value_list_length = 0; }
            |    return_stmt
+           |    value
            ;
 
 compound_stmt:  branch_stmt
@@ -91,6 +94,17 @@ func_def:   DEF IDENTIFIER LPARENTH RPARENTH COLON block_stmt
             node_ptr block = pop_node_from_stack();
             node_ptr func = create_func_def_node($2, block);
             push_node_to_stack(func);
+        }
+        |   DEF IDENTIFIER LPARENTH value_list RPARENTH COLON block_stmt
+        {
+            node_ptr block = pop_node_from_stack();
+            pop_parameters(value_list_length, params);
+            node_ptr func = create_func_def_node($2, value_list_length,
+                                                 params, block);
+
+            push_node_to_stack(func);
+
+            reset_value_list();
         }
         ;
 
@@ -127,17 +141,19 @@ block_stmt: NEWLINE INDENT mult_stmts DEDENT
             push_node_to_stack(node);
             exit_block();
           }
+          | NEWLINE INDENT error DEDENT
+          {
+            printf("Error in block stmt! Continuing...\n");
+          }
           ;
 
-print_stmt: PRINT LPARENTH value_list RPARENTH
+print_stmt: PRINT LPARENTH value RPARENTH
           {
-            node_array children = alloc_children(value_list_length);
-            for(int ii = 0; ii < value_list_length; ii++){
-                children[value_list_length - ii - 1] = pop_node_from_stack();
-            }
-            node_ptr node = create_print_node(value_list_length, children);
+            node_array children = alloc_children(1);
+            children[0] = pop_node_from_stack();
+
+            node_ptr node = create_print_node(1, children);
             push_node_to_stack(node);
-            value_list_length = 0;
           }
           ;
 
@@ -157,8 +173,8 @@ value:  STRING  {
      |  expr1
      ;
 
-value_list: value_list COMMA value  { value_list_length += 1; }
-          | value                   { value_list_length += 1; }
+value_list: value_list COMMA value  { inc_value_list(); }
+          | value                   { inc_value_list(); }
           ;
 
 func_call:  IDENTIFIER LPARENTH RPARENTH
@@ -179,7 +195,7 @@ return_stmt:    RETURN value
 expr1: expr1 OR expr2           {
                                     push_operator(OR);
                                 }
-     | expr2 
+     | expr2
      ;
 
 expr2: expr2 AND expr3          {
@@ -250,5 +266,9 @@ bool:   TRUE        {
                         node_ptr node = create_number_node(0);
                         push_node_to_stack(node);
                     }
+    | error
+    {
+        printf("Unexpected token %s! Continuing...\n", yyval);
+    }
     ;
 %%
