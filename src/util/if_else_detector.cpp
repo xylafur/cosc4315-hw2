@@ -113,7 +113,3 @@ int count_if_children(ParseTreeNode *if_node) {
 
     return max_depth;
 }
-
-int main() {
-  return 0;
-}
