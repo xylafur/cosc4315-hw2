@@ -3,6 +3,7 @@
 #include "ast.h"
 #include "node_util.h"
 #include "gen_util.h"
+#include "variables.h"
 
 extern FILE *yyin;
 
