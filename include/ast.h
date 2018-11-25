@@ -12,7 +12,7 @@ typedef enum parse_tree_type_s {
     PROGRAM_NODE,
 
     BLOCK_STMT_NODE,
-    MULT_STMTS_NODE,
+    MULT_STMTS_NODE, // not used
 
     FUNC_DEF_NODE,
     BRANCH_STMT_NO_ELSE_NODE,
