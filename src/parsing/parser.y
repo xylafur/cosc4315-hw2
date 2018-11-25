@@ -64,13 +64,13 @@ stmt:   simple_stmt
 simple_stmt:    single_stmt NEWLINE
            ;
 
-mult_stmts: %empty 
+mult_stmts: %empty
           | mult_stmts simple_stmt
           {
             num_stmts++;
           }
           | mult_stmts compound_stmt
-          { 
+          {
             num_stmts++;
           }
           | mult_stmts NEWLINE

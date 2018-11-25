@@ -17,6 +17,10 @@ int stmt_stack [MAX_STMT_STACK_SIZE];
 int num_stmts = 0;
 int stmt_stack_pos = 0;
 
+
+int waiting_on_else = 0;
+char delayed_block = 0;
+
 //helper functions that manipulate the stmt stack.  SUpposed to represent the
 //scope of a block
 void enter_block()
@@ -30,9 +34,36 @@ void exit_block()
     if(stmt_stack_pos == 0){
         num_stmts = 0;
     }else{
+        stmt_stack[stmt_stack_pos] = 0;
         num_stmts = stmt_stack[--stmt_stack_pos];
     }
 }
+
+#define print_token(token) switch(token){                                   \
+case DEF: printf("DEF ");break; case RETURN: printf("RETURN ");break;       \
+case PRINT: printf("PRINT ");break;case IF: printf("IF ");break;            \
+case ELSE: printf("ELSE ");break; case FOR: printf("FOR ");break;           \
+case WHILE: printf("WHILE ");break; case TRUE: printf("TRUE ");break;       \
+case FALSE: printf("FALSE ");break; case AND: printf("AND ");break;         \
+case OR: printf("OR ");break; case STRING: printf("STRING ");break;         \
+case NUMBER: printf("NUMBER ");break; case REAL: printf("REAL ");break;     \
+case IDENTIFIER: printf("IDENTIFIER ");break;                               \
+case STAR: printf("STAR ");break;                                           \
+case PLUS: printf("PLUS ");break; case SLASH: printf("SLASH ");break;       \
+case MINUS: printf("MINUS ");break; case EQUALS: printf("EQUALS ");break;   \
+case SINGLE: printf("SINGLE ");break;                                       \
+case EQUALSEQUALS: printf("EQUALSEQUALS ");break;                           \
+case GREATEREQUALS: printf("GREATEREQUALS ");break;                         \
+case LESSEQUALS: printf("LESSEQUALS ");break;                               \
+case GREATER: printf("GREATER ");break; case LESS: printf("LESS ");break;   \
+case LPARENTH: printf("LPARENTH ");break;                                   \
+case RPARENTH: printf("RPARENTH ");break;                                   \
+case COMMA: printf("COMMA ");break;                                         \
+case BACKSLASH: printf("BACKSLASH ");break;                                 \
+case COLON: printf("COLON ");break; case INDENT: printf("INDENT ");break;   \
+case DEDENT: printf("DEDENT");break; case NEWLINE: printf("NEWLINE ");break;\
+case WHITESPACE: printf("WHITESPACE ");break;                               \
+default: printf("Invalid token\n");break;}
 
 %}
 
@@ -128,6 +159,13 @@ or                          return OR;
 
 %%
 
+
+
+#define check_dedent()  if(dedent_count){dedent_count--;return DEDENT;}
+#define check_cached()     if(cached_token){int ret = cached_token;         \
+                                cached_token = 0;return ret;}
+#define count_indent_get_token() while(token == INDENT){current_indent++;   \
+                                                        token = yylex();}
 /*
  *  Take what we get from yylex and return the proper token based on indention
  *  level.  Adds tokens like dedent and ensures that we never indent more than
@@ -136,46 +174,44 @@ or                          return OR;
 int _get_next_token()
 {
     int current_indent = 0;
-    //this is how we make up for multiple dedents
-    if(dedent_count){
-        dedent_count--;
-        return DEDENT;
-    }
-    //if we cahced a token previously, return that because we don't need a new
-    //token
-    if(cached_token){
-        int ret = cached_token;
-        cached_token = 0;
-        
-        return ret;
-    }
-    if(token == NEWLINE)
+    //check if we are still dedenting
+    check_dedent();
+    //check if we had a token stored away because of indent or dedent
+    check_cached();
+
+
+    if(token == NEWLINE){
         first_in_line = 1;
+    }
     //continue getting tokens until we don't get whitespace
+
     token = yylex();
-    //for an edge case, to keet the block going
-    if(token == NEWLINE)
+
+    //if we are the first in line or not it doesn't matter.  Preserve our state
+    //and return the newline token
+    if(token == NEWLINE){
         return token;
+    }
+
     //if we get a newline character, we start a new line.  Indents are only
     //significant at the beginning of a line
-    if(! first_in_line)
+    if(! first_in_line){
         //if this isn't the first entry in the line, we will just treat an
         //indent like a space
         return token != INDENT ? token : WHITESPACE;
+    }
     first_in_line = 0;
 
-    while(token == INDENT){
-        current_indent++;
-        token = yylex();
-    }
+    //store our current indention level and then store the token we get.
+    count_indent_get_token();
 
-   //if the indention level is greater, that means that we are in a new
-    //'block' and need to return a new indent token
+    //we have more indents than before, we are in a new block.  We need to
+    //return the indent token and then store the other token we have
     if(current_indent > global_indent_level){
-        //I am assuming that the indention level can never be greater than 1 
         cached_token = token;
         global_indent_level = current_indent;
         return INDENT;
+
     } else if (current_indent < global_indent_level){
         //here we are dedenting, we can have more than one dedent, so we have
         //to keep track of this
@@ -187,14 +223,69 @@ int _get_next_token()
     return token;
 }
 
+/*
+    This function is sort of a hack, we use this as a wrapper for the yylex
+    function.  Because of the INDENT/DEDENT tokens that we need for a python
+    grammar, we need to return different tokens based on the number of indents
+    we see at any given point in comparison to the number of indents we saw
+    before.
+
+    There are also some additional work arounds in this function.
+        If we see an if token, we mark a global flag.
+            We do this because if we see another if stmt before seeing an else
+            we run into issues.
+            THe issue is sort of self inflicted because when we enter a new
+            logical block (such as for a function or an ifstmt, wherever the
+            indention is more than it was before) we push the number of stmts
+            we had for that block onto our stack.
+
+            The Parser knows how many tokens to pop off of the stack based on
+            this num stmt global we have.  If we see an if stmt after another
+            if, before an else, we have to make sure to pop off the correct
+            number of things from the stack before entering a new block and
+            pushing out current number of stmts onto the stack
+
+        If we see an else stmt we need to respond and update the flag based on
+        the ifstmt
+
+        If we enter a function we need to also push the number of stmts for the
+        previous block onto the stack
+ */
 int get_next_token()
 {
     int token;
+
+    //we have not entered a new block because we needed to return the if token
+    //to the parser so it could pop the correct number of tokens from the stack
+    if(delayed_block){
+        enter_block();
+        delayed_block = 0;
+    }
+
     do{
         token = _get_next_token();
-        if(token == IF || token == ELSE || token == DEF){
+        //print_token(token);
+
+        if(token == IF){
+            //if we are currently inside of an if block and we encounter
+            //another if token, we don't want to mess with the stack until
+            //after we have returned the token
+            if(waiting_on_else){
+                delayed_block = 1;
+            }else{
+                //we are not in an ifstmt, increment the waiting on else
+                waiting_on_else++;
+                enter_block();
+            }
+        }else if(token == ELSE){
+            if(waiting_on_else){
+                waiting_on_else--;
+            }
+            enter_block();
+        }else if( token == DEF){
             enter_block();
         }
+
     } while(token == WHITESPACE);
     return token;
 }

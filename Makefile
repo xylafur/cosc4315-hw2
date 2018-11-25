@@ -81,7 +81,7 @@ $(BCODE_GEN_OBJECT): objects
 	$(CC) $(CC_FLAGS) -c $(BCODE_GEN) -o $(BCODE_GEN_OBJECT)
 
 lexer:
-	$(LEXER) -o $(LEX_OUTPUT) $(LEX_INPUT) 
+	$(LEXER) -o $(LEX_OUTPUT) $(LEX_INPUT)
 
 parser:
 	$(PARSER) -o $(PARSER_OUTPUT) -d  $(PARSER_INPUT)
