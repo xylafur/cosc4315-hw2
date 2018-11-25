@@ -87,7 +87,7 @@ int count_if_children(ParseTreeNode *if_node) {
         if (max_depth < depth) max_depth = depth;
 
         // for-loop to process block nodes of if-statement node
-        for (int i = 0; i < temp->num_children; i++)
+        for (int i = 0; i < temp->num_children-1; i++)
         {
 
             ParseTreeNode* block_node = temp->children[i];
@@ -101,7 +101,7 @@ int count_if_children(ParseTreeNode *if_node) {
                 ParseTreeNode *child = block_node->children[i];
 
                 if (child->type == BRANCH_STMT_ELSE_NODE
-                        || child->type == BRANCH_STMT_NO_ELSE_NODE)
+                     || child->type == BRANCH_STMT_NO_ELSE_NODE)
                 {
                     // push the paring if it is an if else node and increment the depth
                     if_node_queue.push(std::make_pair(child, depth+1));
