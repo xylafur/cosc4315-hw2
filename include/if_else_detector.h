@@ -6,6 +6,7 @@
 #include <queue>
 #include <vector>
 #include <assert.h>
+#include <iostream>
 
 std::vector<int> detect_if_else(ParseTreeNode *program_node);
 // this function detects the nested levels of all root if-else nodes in the

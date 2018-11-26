@@ -3,8 +3,13 @@
 #include "ast.h"
 #include "node_util.h"
 #include "gen_util.h"
+
 #include "if_else_detector.h"
+#include "mutation_detector.h"
+
 #include <vector>
+#include <string>
+#include <iostream>
 
 extern FILE *yyin;
 
@@ -33,10 +38,13 @@ int main (int argc, char * argv[])
     printf("\n\n");
 
     std::vector <int> if_elses = detect_if_else(ast_root);
+    std::vector <std::string> mutations = find_mutations(ast_root);
 
-    for(int ii : if_elses){
-        printf("If/else nested level = %d\n", ii);
-    }
+    printf("\nIf/else nested levels: ");
+    for(int ii : if_elses) printf("%d, ", ii);
+
+    printf("\nMutations: ");
+    for(std::string ss : mutations) std::cout << ss << ", ";
 
     //don't forget to deallocate
     destroy_tree(ast_root);

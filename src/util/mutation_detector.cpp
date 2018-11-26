@@ -16,13 +16,17 @@ find_assignments(ParseTreeNode *current_scope, string prefix) {
         temp = current_scope->children[i];
 
         if (temp->type == ASSIGNMENT_NODE) {
-            auto key = std::string(temp->value.s_value);
+            assert(temp->children[0]);
+
+            string key = prefix + temp->children[0]->value.s_value;
+
             auto find_var = assignments.find(key);
             if (find_var != assignments.end()) {
                 assignments[key] += 1;
             } else {
                 assignments[key] = 1;
             }
+
         } else if (temp->type == BRANCH_STMT_ELSE_NODE
                     || temp->type == BRANCH_STMT_NO_ELSE_NODE) {
 
@@ -38,13 +42,12 @@ find_assignments(ParseTreeNode *current_scope, string prefix) {
             }
 
         } else if (temp->type == FUNC_DEF_NODE) {
-
-            auto block_assignments = find_assignments(temp->children[0],
-                    prefix + temp->value.s_value + "::"); // add func def name prefix
+            string func_prefix = prefix + temp->value.s_value + "::";
+            auto block_assignments = find_assignments(temp->children[0],func_prefix);
 
             set<string> param_names;
             for (int j = 0; j < temp->num_parameters; j++) {
-                param_names.insert(string(temp->parameters[j]));
+                param_names.insert(func_prefix + temp->parameters[j]);
             }
 
             for (auto a : block_assignments) {
@@ -54,13 +57,13 @@ find_assignments(ParseTreeNode *current_scope, string prefix) {
                 } else {
                     assignments[a.first] = a.second;
                 }
+            }
 
                 // account for parameter mutation properly with +1
                 // comment these 2 lines v to remove this behavior
                 // depends on what the TA says
-                auto is_param = param_names.find(a.first);
-                if (is_param != param_names.end()) assignments[a.first] += 1;
-            }
+                //auto is_param = param_names.find(a.first);
+                //if (is_param != param_names.end()) assignments[a.first] += 1;
         }
     }
 

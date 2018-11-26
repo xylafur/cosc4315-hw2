@@ -71,7 +71,7 @@ int count_if_children(ParseTreeNode *if_node) {
 
     ParseTreeNode *temp = if_node;
     int depth = 0;
-    std::pair<ParseTreeNode *, int> queue_pair = std::make_pair(temp, depth);
+    std::pair<ParseTreeNode*, int> queue_pair = std::make_pair(temp, depth);
 
     if_node_queue.push(queue_pair);
 
@@ -98,10 +98,11 @@ int count_if_children(ParseTreeNode *if_node) {
             // for-loop to process statements inside each block
             for (int j = 0; j < block_node->num_children; j++)
             {
-                ParseTreeNode *child = block_node->children[i];
+                ParseTreeNode *child = block_node->children[j];
+                assert(child);
 
                 if (child->type == BRANCH_STMT_ELSE_NODE
-                     || child->type == BRANCH_STMT_NO_ELSE_NODE)
+                    || child->type == BRANCH_STMT_NO_ELSE_NODE)
                 {
                     // push the paring if it is an if else node and increment the depth
                     if_node_queue.push(std::make_pair(child, depth+1));
