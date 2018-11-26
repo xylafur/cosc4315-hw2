@@ -3,6 +3,8 @@
 #include "ast.h"
 #include "node_util.h"
 #include "gen_util.h"
+#include "if_else_detector.h"
+#include <vector>
 
 extern FILE *yyin;
 
@@ -27,6 +29,14 @@ int main (int argc, char * argv[])
      * function and then it would be executed by the VM, if it were completed
      */
     print_tree(ast_root, 0);
+
+    printf("\n\n");
+
+    std::vector <int> if_elses = detect_if_else(ast_root);
+
+    for(int ii : if_elses){
+        printf("If/else nested level = %d\n", ii);
+    }
 
     //don't forget to deallocate
     destroy_tree(ast_root);
