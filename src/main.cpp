@@ -45,6 +45,7 @@ int main (int argc, char * argv[])
 
     printf("\nMutations: ");
     for(std::string ss : mutations) std::cout << ss << ", ";
+    puts("");
 
     //don't forget to deallocate
     destroy_tree(ast_root);

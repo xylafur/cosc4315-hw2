@@ -73,11 +73,9 @@ find_assignments(ParseTreeNode *current_scope, string prefix) {
 vector<string> find_mutations(ParseTreeNode *program_node) {
     auto assignments = find_assignments(program_node, std::string());
     vector<string> mutations;
-    for (auto assn : assignments) {
-        if (assn.second > 1) {
+    for (auto assn : assignments)
+        if (assn.second > 1)
             mutations.push_back(assn.first);
-        }
-    }
     return mutations;
 }
 
