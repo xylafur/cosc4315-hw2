@@ -8,6 +8,8 @@
 #include <assert.h>
 #include <iostream>
 
+/* Main detect-if-else function which returns a vector of nested levels
+ * of if statements in the source code */
 std::vector<int> detect_if_else(ParseTreeNode *program_node);
 // this function detects the nested levels of all root if-else nodes in the
 // entire parse tree
@@ -17,6 +19,11 @@ std::vector<int> detect_if_else(ParseTreeNode *program_node);
 // in the program in order of where they appear in the code
 //
 
+
+
+/*
+ * BELOW ARE UTILITIES THAT THE FUNCTION detect_if_else uses
+ * */
 std::vector<ParseTreeNode*> find_root_if_nodes(ParseTreeNode *start);
 // Is used by detect_if_else as a utility. You should not call function.
 //
@@ -40,7 +47,6 @@ std::vector<ParseTreeNode*> find_root_if_nodes(ParseTreeNode *start);
 //    root_ifs = find_root_if_nodes(program_node):
 // }
 //
-
 
 int count_if_children(ParseTreeNode *if_node);
 // used by detect_if_else as a utility, You should not call this function

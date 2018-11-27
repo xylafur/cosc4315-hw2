@@ -2,6 +2,15 @@
 #include "mutation_detector.h"
 using namespace std;
 
+vector<string> find_mutations(ParseTreeNode *program_node) {
+    auto assignments = find_assignments(program_node, std::string());
+    vector<string> mutations;
+    for (auto assn : assignments)
+        if (assn.second > 1)
+            mutations.push_back(assn.first);
+    return mutations;
+}
+
 unordered_map<string, int>
 find_assignments(ParseTreeNode *current_scope, string prefix) {
 
@@ -32,6 +41,7 @@ find_assignments(ParseTreeNode *current_scope, string prefix) {
 
             for (int j = 0; j < temp->num_children-1; j++) {
                 auto block_assignments = find_assignments(temp->children[j], prefix);
+
                 for (auto a : block_assignments) {
                     auto find_a = assignments.find(a.first);
                     if (find_a != assignments.end())
@@ -57,25 +67,15 @@ find_assignments(ParseTreeNode *current_scope, string prefix) {
                 } else {
                     assignments[a.first] = a.second;
                 }
-            }
 
                 // account for parameter mutation properly with +1
-                // comment these 2 lines v to remove this behavior
-                // depends on what the TA says
-                //auto is_param = param_names.find(a.first);
-                //if (is_param != param_names.end()) assignments[a.first] += 1;
+                auto is_param = param_names.find(a.first);
+                if (is_param != param_names.end()) assignments[a.first] += 1;
+            }
         }
     }
 
     return assignments;
 }
 
-vector<string> find_mutations(ParseTreeNode *program_node) {
-    auto assignments = find_assignments(program_node, std::string());
-    vector<string> mutations;
-    for (auto assn : assignments)
-        if (assn.second > 1)
-            mutations.push_back(assn.first);
-    return mutations;
-}
 
