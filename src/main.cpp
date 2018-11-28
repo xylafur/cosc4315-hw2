@@ -33,19 +33,20 @@ int main (int argc, char * argv[])
     /* print the entire tree.  We would pass the tree into the conversion
      * function and then it would be executed by the VM, if it were completed
      */
-    print_tree(ast_root, 0);
+    //print_tree(ast_root, 0);
 
-    printf("\n\n");
+    //printf("\n\n");
+
 
     std::vector <int> if_elses = detect_if_else(ast_root);
     std::vector <std::string> mutations = find_mutations(ast_root);
 
-    printf("\nIf/else nested levels: ");
-    for(int ii : if_elses) printf("%d, ", ii);
+    //printf("\nIf/else nested levels: ");
+    //for(int ii : if_elses) printf("%d, ", ii);
 
-    printf("\nMutations: ");
-    for(std::string ss : mutations) std::cout << ss << ", ";
-    puts("");
+    //printf("\nMutations: ");
+    //for(std::string ss : mutations) std::cout << ss << ", ";
+    //puts("");
 
     //don't forget to deallocate
     destroy_tree(ast_root);

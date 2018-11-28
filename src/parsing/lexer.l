@@ -17,6 +17,42 @@ int stmt_stack [MAX_STMT_STACK_SIZE];
 int num_stmts = 0;
 int stmt_stack_pos = 0;
 
+#define IF_STMT_LEVEL_STACK_SIZE 1024
+int if_stmt_level_stack [IF_STMT_LEVEL_STACK_SIZE];
+int num_levels = 0;
+int current_indention = -1;
+
+char disregard = 0;
+
+#define put_global() /*printf("Global: %d\n", global_indent_level)*/
+#define put_current() /*printf("Current: %d\n", current_indention)*/
+
+#define push_if()                                                           \
+    if_stmt_level_stack[num_levels++] = current_indention;                  \
+    current_indention = global_indent_level
+
+#define pop_if() current_indention = if_stmt_level_stack[--num_levels];     \
+                 put_global();put_current()
+
+#define check_else()  if(current_indention != global_indent_level){         \
+                        printf("Found else without if!\n"); disregard = 1;  \
+                        push_if(); put_global();put_current();              \
+                        goto loop_begin; }                                  \
+                      else { pop_if(); }
+
+#define disregard_else(token) do {token = _get_next_token();                \
+                                  if(token != COLON){break;}                \
+                                  token = _get_next_token();                \
+                                  if(token != NEWLINE){break;}              \
+                                  token = _get_next_token();                \
+                                  if(token != INDENT){break;}               \
+                                  do { token = _get_next_token(); }         \
+                                  while(current_indention !=                \
+                                        global_indent_level);               \
+                                  if(token != DEDENT){break;}               \
+                                  token = _get_next_token();                \
+                              } while (0);pop_if();disregard = 0
+
 
 int waiting_on_else = 0;
 char delayed_block = 0;
@@ -251,6 +287,7 @@ int _get_next_token()
         If we enter a function we need to also push the number of stmts for the
         previous block onto the stack
  */
+
 int get_next_token()
 {
     int token;
@@ -262,14 +299,22 @@ int get_next_token()
         delayed_block = 0;
     }
 
+loop_begin:
+
     do{
-        token = _get_next_token();
+        if(disregard){
+            disregard_else(token);
+        }else{
+            token = _get_next_token();
+        }
         //print_token(token);
 
         if(token == IF){
             //if we are currently inside of an if block and we encounter
             //another if token, we don't want to mess with the stack until
             //after we have returned the token
+            push_if();
+
             if(waiting_on_else){
                 delayed_block = 1;
             }else{
@@ -278,6 +323,7 @@ int get_next_token()
                 enter_block();
             }
         }else if(token == ELSE){
+            check_else();
             if(waiting_on_else){
                 waiting_on_else--;
             }
@@ -287,6 +333,7 @@ int get_next_token()
         }
 
     } while(token == WHITESPACE);
+
     return token;
 }
 
