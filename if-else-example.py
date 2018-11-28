@@ -1,3 +1,9 @@
+a=5
+a=6
+
+b=5
+b=5
+
 else:
    print("fuck")
 else:

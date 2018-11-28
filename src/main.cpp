@@ -34,7 +34,7 @@ int main (int argc, char * argv[])
     /* print the entire tree.  We would pass the tree into the conversion
      * function and then it would be executed by the VM, if it were completed
      */
-    print_tree(ast_root, 0);
+    //print_tree(ast_root, 0);
 
     //printf("\n\n");
 
@@ -44,12 +44,22 @@ int main (int argc, char * argv[])
 
     printf("Found %d else blocks without an if\n", orphan_else);
 
-    //printf("\nIf/else nested levels: ");
-    //for(int ii : if_elses) printf("%d, ", ii);
+    printf("\nIf/else nested levels: ");
+    if(if_elses.size() > 0){
+        for(int ii : if_elses) printf("%d, ", ii);
+    }else{
+        printf("None.");
+    }
 
-    //printf("\nMutations: ");
-    //for(std::string ss : mutations) std::cout << ss << ", ";
-    //puts("");
+    printf("\nMutations: ");
+    if(mutations.size() > 0){
+        for(std::string ss : mutations) {
+            std::cout << ss << ", ";
+        }
+    }else{
+        printf("None");
+    }
+    puts("");
 
     //don't forget to deallocate
     destroy_tree(ast_root);
