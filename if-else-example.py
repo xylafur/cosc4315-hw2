@@ -1,11 +1,19 @@
-a = 1
-b = 1
-a = 2
-b = 1
+else:
+   print("fuck")
+else:
+   x
 
 if True:
-   print("Fuck")
-else:
-   print('nope')
-else:
-   print("other")
+   if True:
+      if True:
+         if False:
+            print('nope')
+         else:
+            print("wow")
+         else:
+            y
+   else:
+      print("wow")
+   else:
+      x
+y

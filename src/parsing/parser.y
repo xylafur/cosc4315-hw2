@@ -29,6 +29,7 @@ void yyerror(const char * str)
 
 int mod = 1;
 int value_list_length = 0;
+int orphan_else = 0;
 
 #define inc_value_list() value_list_length += 1
 #define reset_value_list()  value_list_length = 0
@@ -154,6 +155,11 @@ print_stmt: PRINT LPARENTH value RPARENTH
 
             node_ptr node = create_print_node(1, children);
             push_node_to_stack(node);
+          }
+          | PRINT LPARENTH RPARENTH
+          {
+            node_ptr node = create_print_node(0, 0);
+            push_node_to_stack(node);           
           }
           ;
 

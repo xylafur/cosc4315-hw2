@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include "parser.tab.h"
 #include "gen_util.h"
+#include <time.h>
 
 unsigned int global_indent_level = 0;
 unsigned int dedent_count = 0;
@@ -24,21 +25,21 @@ int current_indention = -1;
 
 char disregard = 0;
 
-#define put_global() /*printf("Global: %d\n", global_indent_level)*/
-#define put_current() /*printf("Current: %d\n", current_indention)*/
+extern int orphan_else;
+
+#define put_global() printf("Global: %d\n", global_indent_level)
+#define put_current() printf("Current: %d\n", current_indention)
 
 #define push_if()                                                           \
     if_stmt_level_stack[num_levels++] = current_indention;                  \
     current_indention = global_indent_level
 
-#define pop_if() current_indention = if_stmt_level_stack[--num_levels];     \
-                 put_global();put_current()
+#define pop_if() current_indention = if_stmt_level_stack[--num_levels];
 
 #define check_else()  if(current_indention != global_indent_level){         \
-                        printf("Found else without if!\n"); disregard = 1;  \
-                        push_if(); put_global();put_current();              \
-                        goto loop_begin; }                                  \
-                      else { pop_if(); }
+                        orphan_else++; disregard = 1; push_if();            \
+                        goto loop_begin;                                    \
+                      } else { pop_if(); }
 
 #define disregard_else(token) do {token = _get_next_token();                \
                                   if(token != COLON){break;}                \
@@ -46,8 +47,8 @@ char disregard = 0;
                                   if(token != NEWLINE){break;}              \
                                   token = _get_next_token();                \
                                   if(token != INDENT){break;}               \
-                                  do { token = _get_next_token(); }         \
-                                  while(current_indention !=                \
+                                  do { token = _get_next_token();}          \
+                                  while(current_indention <                 \
                                         global_indent_level);               \
                                   if(token != DEDENT){break;}               \
                                   token = _get_next_token();                \
@@ -99,6 +100,7 @@ case BACKSLASH: printf("BACKSLASH ");break;                                 \
 case COLON: printf("COLON ");break; case INDENT: printf("INDENT ");break;   \
 case DEDENT: printf("DEDENT");break; case NEWLINE: printf("NEWLINE ");break;\
 case WHITESPACE: printf("WHITESPACE ");break;                               \
+case 0: printf("NULL TOKEN!");break;                                      \
 default: printf("Invalid token\n");break;}
 
 %}
@@ -308,6 +310,7 @@ loop_begin:
             token = _get_next_token();
         }
         //print_token(token);
+
 
         if(token == IF){
             //if we are currently inside of an if block and we encounter
