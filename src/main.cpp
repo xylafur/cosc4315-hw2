@@ -64,6 +64,7 @@ int main (int argc, char * argv[])
         }
         puts("\n\n");
     }
+    printf("\n\n");
     //don't forget to deallocate
     destroy_tree(ast_root);
 }
