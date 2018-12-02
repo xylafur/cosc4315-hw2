@@ -182,3 +182,62 @@ vector<ParseTreeNode*> find_recursive_functions(ParseTreeNode *start) {
     return functions;
 }
 
+void clean_curr_childs(ParseTreeNode *node) {
+    queue<ParseTreeNode*> node_queue;
+    node_queue.push(node);
+
+    ParseTreeNode *temp;
+    while (!node_queue.empty()) {
+        temp = node_queue.front(); node_queue.pop();
+        temp->curr_child = 0;
+        for (int i = 0; i < temp->num_children; i++) {
+            node_queue.push(temp->children[i]);
+        }
+    }
+}
+
+bool is_increasing(ParseTreeNode *expr, int val) {
+    // assumptions:
+    //  * expr is an arithmetic expression which is a child of a func call
+    //  * val is the value to substitute
+
+    int eval = 0;
+
+    stack<ParseTreeNode*> node_stack;
+    stack<int> operands;
+
+    ParseTreeNode *temp;
+
+    while (!node_stack.empty()) {
+        temp = node_stack.top(); 
+        if (temp->curr_child == temp->num_children) {
+            node_stack.pop();
+            int a, b;
+            if (temp->type == IDENTIFIER_NODE) {
+                operands.push(val);
+            } else if (temp->type == NUMBER_NODE) {
+                operands.push(temp->value.s_value);
+            } else {
+                int a = operands.top(); operands.pop();
+                int b = operands.top(); operands.pop();
+                if (temp->type == PLUS) {
+                    operands.push(a+b);
+                } else if (temp->type == MINUS) {
+                    operands.push(a-b);
+                } else if (temp->type == STAR) {
+                    operands.push(a*b);
+                } else if (temp->type == SLASH) {
+                    operands.push(a/b);
+                } else {
+                    assert(0);
+                }
+            }
+        } else {
+            node_stack.push(temp->num_children[temp->curr_child++]);
+        }
+    }
+
+    clean_curr_childs(expr);
+    return operands.top() > val;
+}
+
