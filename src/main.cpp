@@ -6,6 +6,7 @@
 
 #include "if_else_detector.h"
 #include "mutation_detector.h"
+#include "recursion_detector.h"
 
 #include <vector>
 #include <string>
@@ -52,9 +53,12 @@ int main (int argc, char * argv[])
 
     printf("\nIf/else nested levels: ");
     if(if_elses.size() > 0){
-        for(int ii : if_elses) printf("%d, ", ii);
+        for(int ii : if_elses){
+            printf("%d, ", ii);
+        }
+        printf("\n");
     }else{
-        printf("None.");
+        printf("None.\n");
     }
 
     if(mutations.size() > 0){
@@ -64,6 +68,24 @@ int main (int argc, char * argv[])
         }
         puts("\n\n");
     }
+
+    std::vector<ParseTreeNode*> func_calls = find_global_func_calls(ast_root);
+    std::vector<ParseTreeNode*> func_defs = find_recursive_functions(ast_root);
+
+    for(int ii= 0; ii < func_defs.size(); ii++){
+        for(int jj = 0; jj < func_calls.size(); jj++){
+            if(strcmp(func_defs[ii]->value.s_value,
+                      func_calls[jj]->value.s_value) == 0){
+                //printf("Found call of func %s\n", func_calls[jj]->value.s_value);
+                std::cout << recursive_function_terminates(
+                        func_defs[ii], func_calls[jj]) << std::endl;
+            }
+        }
+        //print_tree(func_defs[ii], 0);
+        //recursive_function_terminates(
+        
+    }
+
     printf("\n\n");
     //don't forget to deallocate
     destroy_tree(ast_root);

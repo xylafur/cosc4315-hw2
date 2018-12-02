@@ -15,7 +15,7 @@ bool contains_func_call_of(ParseTreeNode *func_node, const char *func_name) {
 
     // use breadth first search to find a recursive call on self
     while (!node_queue.empty()) {
-        temp = node_queue.top(); node_queue.pop();
+        temp = node_queue.front(); node_queue.pop();
         if (temp->type == FUNC_CALL_NODE
              && strcmp(temp->value.s_value, func_name) == 0) {
             return true;
@@ -38,7 +38,7 @@ bool is_base_return_stmt(ParseTreeNode *ret_stmt, const char *func_name) {
     return !contains_func_call_of(ret_stmt, func_name);
 }
 
-vector<ParseTreeNode*>>
+vector<ParseTreeNode*>
 find_return_statements(ParseTreeNode *func_def) {
     /* This function finds all the return nodes inside a func_def */
     vector<ParseTreeNode*> return_stmts;
@@ -49,7 +49,7 @@ find_return_statements(ParseTreeNode *func_def) {
     ParseTreeNode *temp;
 
     while (!node_queue.empty()) {
-        temp = node_queue.top(); node_queue.pop();
+        temp = node_queue.front(); node_queue.pop();
 
         if (temp->type == RETURN_STMT_NODE) {
             return_stmts.push_back(temp);
@@ -64,6 +64,60 @@ find_return_statements(ParseTreeNode *func_def) {
     return return_stmts;
 }
 
+bool recursive_function_terminates(ParseTreeNode * rec_func,
+                                   ParseTreeNode * call){
+    const char * func_name = rec_func->value.s_value;
+
+    ParseTreeNode * block = rec_func->children[0];
+    if(rec_func->num_children > 0){
+        printf("num children > 0\n");
+        if(rec_func->children[0]->type == RETURN_STMT_NODE){
+            printf("first thing is a return\n");
+            return is_base_return_stmt(rec_func->children[0], func_name);
+        }
+
+        else if(block->children[0]->type == BRANCH_STMT_ELSE_NODE){
+            printf("branch stmt with else\n");
+
+            ParseTreeNode * condition    = block->children[2];
+            ParseTreeNode * _if     = block->children[0];
+            ParseTreeNode * _else = block->children[1];
+
+            ParseTreeNode * if_ret = _if->children[0]->children[0];
+            ParseTreeNode * else_ret = _else->children[0]->children[0];
+    
+            //the if block is the recurisve call and the else block is the base
+            //case
+            if(is_recursive_function(if_ret) &&
+               is_base_return_stmt(else_ret, func_name)){
+                printf("if recursive, else base\n");
+
+            }else if(is_recursive_function(else_ret) &&
+                     is_base_return_stmt(if_ret, func_name)){
+                printf("else recursive, if base\n");
+
+            }else if(is_base_return_stmt(if_ret, func_name) &&
+                     is_base_return_stmt(else_ret, func_name)){
+                printf("else base, if base\n");
+
+            }else if(is_recursive_function(if_ret) &&
+                     is_recursive_function(else_ret)){
+                printf("else recursive, if recursive\n");
+
+
+            }else{
+                //throw our hands up because we hard coded to hard
+                printf("flip a coin!\n");
+            }
+
+
+        }
+    }
+    return false;
+    
+}
+
+/*
 bool recursive_function_terminates(ParseTreeNode *rec_func, vector<ParseTreeNode> calls) {
     assert(rec_func);
     assert(rec_func->type == FUNC_DEF_NODE);
@@ -123,6 +177,7 @@ bool recursive_function_terminates(ParseTreeNode *rec_func, vector<ParseTreeNode
     bool base_case_if_true = contains_func_call_of(recursive_call, rec_func->value.s_value);
 
 }
+*/
 
 
 vector<ParseTreeNode*> find_global_func_calls(ParseTreeNode* program_node) {
@@ -146,7 +201,7 @@ vector<ParseTreeNode*> find_global_func_calls(ParseTreeNode* program_node) {
     }
 
     while (!search_areas.empty()) {
-        temp = search_areas.top(); search_areas.pop();
+        temp = search_areas.front(); search_areas.pop();
 
         if (temp->type == FUNC_CALL_NODE) {
             func_calls.push_back(temp);
@@ -174,7 +229,8 @@ vector<ParseTreeNode*> find_recursive_functions(ParseTreeNode *start) {
 
     for (int i = 0; i < start->num_children; i++) {
         temp = start->children[i];
-        if (temp->type == FUNC_DEF_NODE && contains_func_call_of(temp, temp->value.s_value)) {
+        if (temp->type == FUNC_DEF_NODE &&
+            contains_func_call_of(temp, temp->value.s_value)) {
             functions.push_back(temp);
         }
     }
