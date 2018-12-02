@@ -3,6 +3,7 @@
 #include "parser.tab.h"
 #include "gen_util.h"
 #include <time.h>
+#include <assert.h>
 
 unsigned int global_indent_level = 0;
 unsigned int dedent_count = 0;
@@ -18,44 +19,11 @@ int stmt_stack [MAX_STMT_STACK_SIZE];
 int num_stmts = 0;
 int stmt_stack_pos = 0;
 
-#define IF_STMT_LEVEL_STACK_SIZE 1024
-int if_stmt_level_stack [IF_STMT_LEVEL_STACK_SIZE];
-int num_levels = 0;
-int current_indention = -1;
-
-char disregard = 0;
-
 extern int orphan_else;
 
 #define put_global() printf("Global: %d\n", global_indent_level)
-#define put_current() printf("Current: %d\n", current_indention)
+#define put_current() printf("Current: %d\n", current_indent_level)
 
-#define push_if()                                                           \
-    if_stmt_level_stack[num_levels++] = current_indention;                  \
-    current_indention = global_indent_level
-
-#define pop_if() current_indention = if_stmt_level_stack[--num_levels];
-
-#define check_else()  if(current_indention != global_indent_level){         \
-                        orphan_else++; disregard = 1; push_if();            \
-                        goto loop_begin;                                    \
-                      } else { pop_if(); }
-
-#define disregard_else(token) do {token = _get_next_token();                \
-                                  if(token != COLON){break;}                \
-                                  token = _get_next_token();                \
-                                  if(token != NEWLINE){break;}              \
-                                  token = _get_next_token();                \
-                                  if(token != INDENT){break;}               \
-                                  do { token = _get_next_token();}          \
-                                  while(current_indention <                 \
-                                        global_indent_level);               \
-                                  if(token != DEDENT){break;}               \
-                                  token = _get_next_token();                \
-                              } while (0);pop_if();disregard = 0
-
-
-int waiting_on_else = 0;
 char delayed_block = 0;
 
 //helper functions that manipulate the stmt stack.  SUpposed to represent the
@@ -289,6 +257,59 @@ int _get_next_token()
         If we enter a function we need to also push the number of stmts for the
         previous block onto the stack
  */
+int current_indent_level = 0;
+
+#define MAX_INDENT_LEVEL 10
+int waiting_on_else [MAX_INDENT_LEVEL];
+
+//basically we zero out all of the counter structures until we find the level
+//where this if stmt was defined.  n is the new indent level
+void pop_if(int n){
+    for( ; n < current_indent_level; current_indent_level--){
+        waiting_on_else[current_indent_level] = 0;
+    }
+    waiting_on_else[current_indent_level] = 1;
+}
+
+int disregard = 0;
+
+int disregard_else(){
+    token = _get_next_token();
+    if(token != COLON){
+        return token;
+    }
+    token = _get_next_token();
+    if(token != NEWLINE){
+        return token;
+    }
+    token = _get_next_token();
+    if(token != INDENT){
+        return token;
+    }
+    do {
+        token = _get_next_token();
+    } while(current_indent_level < global_indent_level);
+    if(token != DEDENT){
+        return token;
+    }
+    token = _get_next_token();
+
+    disregard = 0;
+    return token;
+}
+
+//if we recieve an else token for a indent level that is much less than the
+//indent level we are currently considering, we wait to mark the w.o.e. for all
+//of those higher indents to 0 because we will no longer be looking for a else
+//token for them.
+void do_woe(int n){
+    assert(n <= current_indent_level);
+    for( ; n < current_indent_level; current_indent_level--){
+        waiting_on_else[current_indent_level] = 0;
+    }
+    waiting_on_else[current_indent_level] = 0;
+}
+
 
 int get_next_token()
 {
@@ -305,32 +326,49 @@ loop_begin:
 
     do{
         if(disregard){
-            disregard_else(token);
+            token = disregard_else();
         }else{
             token = _get_next_token();
         }
-        //print_token(token);
-
 
         if(token == IF){
-            //if we are currently inside of an if block and we encounter
-            //another if token, we don't want to mess with the stack until
-            //after we have returned the token
-            push_if();
+            if(waiting_on_else[current_indent_level]){
+                if(current_indent_level == global_indent_level){
+                    //we just mark for delay because we will still be waiting on
+                    //else.  We return the if so that the parser knows to pop
+                    //elements off of the stack
+                    delayed_block = 1;
 
-            if(waiting_on_else){
-                delayed_block = 1;
-            }else{
-                //we are not in an ifstmt, increment the waiting on else
-                waiting_on_else++;
+                //this means that we have incremented more since the last if
+                //statement
+                }else if(global_indent_level > current_indent_level){
+                    //we are going to enter a new block
+                    current_indent_level = global_indent_level;
+                    waiting_on_else[current_indent_level] = 1;
+                    enter_block();
+
+                }else/*lower indent level*/{
+                    pop_if(global_indent_level);
+                    delayed_block = 1;
+                }
+            } else /*this should only happen for first if for indent level*/{
+                current_indent_level = global_indent_level;
+                waiting_on_else[current_indent_level] = 1;
                 enter_block();
             }
+
         }else if(token == ELSE){
-            check_else();
-            if(waiting_on_else){
-                waiting_on_else--;
+            if(waiting_on_else[global_indent_level]){
+                do_woe(global_indent_level);
+                enter_block();
+            }else/*We were not expecting an else here*/{
+                orphan_else++;
+                current_indent_level = global_indent_level;
+                disregard = 1;
+                //gotos are fucking useful, fuck dikstra
+                goto loop_begin;
             }
-            enter_block();
+
         }else if( token == DEF){
             enter_block();
         }

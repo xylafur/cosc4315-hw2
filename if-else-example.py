@@ -4,11 +4,6 @@ a=6
 b=5
 b=5
 
-else:
-   print("fuck")
-else:
-   x
-
 if True:
    if True:
       if True:
@@ -18,8 +13,12 @@ if True:
             print("wow")
          else:
             y
+         else:
+            b
    else:
       print("wow")
    else:
       x
+else:
+   y
 y
