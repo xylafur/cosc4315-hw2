@@ -98,14 +98,14 @@ compound_stmt:  branch_stmt
 
 ident_list: IDENTIFIER COMMA ident_list
           {
+            node_ptr node = create_identifier_node(yyval.str);
+            push_node_to_stack(node);
             ident_list_length++;
           }
           | IDENTIFIER
           {
             node_ptr node = create_identifier_node(yyval.str);
             push_node_to_stack(node);
- 
-            printf("Matching single ident list element %s\n", yyval);
             ident_list_length++;
           }
           ;
