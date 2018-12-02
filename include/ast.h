@@ -105,6 +105,7 @@ node_ptr create_branch_with_else_node(node_ptr condition, node_ptr if_block,
                                       node_ptr else_block);
 
 node_ptr create_func_call_node(char * name);
+node_ptr create_func_call_parameters_node(char * name, int num_children);
 
 node_ptr create_return_stmt(node_ptr ret_val);
 

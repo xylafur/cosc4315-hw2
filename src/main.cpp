@@ -34,7 +34,6 @@ int main (int argc, char * argv[])
     /* print the entire tree.  We would pass the tree into the conversion
      * function and then it would be executed by the VM, if it were completed
      */
-    //print_tree(ast_root, 0);
 
     //printf("\n\n");
 
@@ -59,7 +58,9 @@ int main (int argc, char * argv[])
     }else{
         printf("None");
     }
-    puts("");
+    puts("\n\n");
+
+    print_tree(ast_root, 0);
 
     //don't forget to deallocate
     destroy_tree(ast_root);

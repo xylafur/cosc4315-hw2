@@ -61,68 +61,77 @@ void get_oper(node_ptr node, char oper [4])
     }
 }
 
-void print_node_type(node_ptr node)
+void print_node_type(node_ptr node, int indent_level, bool newline)
 {
+    for(int ii = 0; ii < indent_level; ii++){
+        printf("    ");
+    }
     switch(node->type){
         case PROGRAM_NODE:
-            printf("PROGRAM\n");
+            printf("PROGRAM");
             break;
         case MULT_STMTS_NODE:
-            printf("MULT_STMTS\n");
+            printf("MULT_STMTS");
             break;
         case FUNC_DEF_NODE:
             printf("FUNC_DEF: %s -- ", node->value.s_value);
             printf(" %d parameters: ", node->num_parameters);
             for(int ii = 0; ii < node->num_parameters; ii++){
-                printf("%s, ", node->parameters[ii]);
+                printf("(%s), ", node->parameters[ii]);
             }
-            printf("\n");
             break;
         case BLOCK_STMT_NODE:
-            printf("BLOCK STMT w/ %d children\n", node->num_children);
+            printf("BLOCK STMT w/ %d children", node->num_children);
             break;
         case BRANCH_STMT_NO_ELSE_NODE:
-            printf("BRANCH_STMT_NO_ELSE\n");
+            printf("BRANCH_STMT_NO_ELSE");
             break;
         case BRANCH_STMT_ELSE_NODE:
-            printf("BRANCH_STMT_ELSE\n");
+            printf("BRANCH_STMT_ELSE");
             break;
         case PRINT_STMT_NODE:
-            printf("PRINT_STMT\n");
+            printf("PRINT_STMT");
             break;
         case ASSIGNMENT_NODE:
-            printf("ASSIGN\n");
+            printf("ASSIGN");
             break;
         case FUNC_CALL_NODE:
-            printf("FUNC_CALL\n");
+            printf("FUNC_CALL (%d children)  ", node->num_children);
+            for(int ii; ii < node->num_children; ii++){
+                printf("(");
+                print_node_type(node->children[ii], 0, false);
+                printf("), ");
+            }
             break;
         case RETURN_STMT_NODE:
-            printf("RETURN_STMT\n");
+            printf("RETURN_STMT");
             break;
         case EXPR_NODE:
             char oper [4];
             get_oper(node, oper);
-            printf("EXPR: %s\n", oper);
+            printf("EXPR: %s", oper);
             break;
         case STRING_NODE:
-            printf("STRING: %s\n", node->value.s_value);
+            printf("STRING: %s", node->value.s_value);
             break;
         case NUMBER_NODE:
-            printf("NUMBER: %d\n", node->value.n_value);
+            printf("NUMBER: %d", node->value.n_value);
             break;
         case IDENTIFIER_NODE:
-            printf("IDENTIFIER: %s\n", node->value.s_value);
+            printf("IDENTIFIER: %s", node->value.s_value);
             break;
         default:
             break;
+    }
+    if(newline){
+        printf("\n");
     }
 }
 
 void print_tree(ParseTreeNode * root, int indent_level)
 {
-    for(int ii = 0; ii < indent_level; ii++)
-        printf("    ");
-    print_node_type(root);
+
+    print_node_type(root, indent_level, true);
 
     for(int ii = 0; ii < root->num_children; ii++){
         print_tree(root->children[ii], indent_level + 1);

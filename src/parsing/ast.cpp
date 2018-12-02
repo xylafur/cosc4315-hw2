@@ -181,6 +181,20 @@ node_ptr create_func_call_node(char * name)
     return ret;
 }
 
+node_ptr create_func_call_parameters_node(char * name, int num_children)
+{
+    create_node(ret);
+    ret->type = FUNC_CALL_NODE;
+    create_children(num_children);
+    for(int ii = 0 ; ii < num_children; ii++){
+        ret->children[num_children - ii - 1] = pop_node_from_stack();
+    }
+    copy_sval(name);
+    return ret;
+
+
+}
+
 node_ptr create_return_stmt(node_ptr ret_val)
 {
     create_node(ret);

@@ -31,8 +31,13 @@ int mod = 1;
 int value_list_length = 0;
 int orphan_else = 0;
 
+int func_param_list_length = 0;
+
 #define inc_value_list() value_list_length += 1
 #define reset_value_list()  value_list_length = 0
+
+#define inc_func_param_list() value_list_length += 1
+#define reset_func_param_list() value_list_length = 0
 
 %}
 
@@ -188,7 +193,28 @@ func_call:  IDENTIFIER LPARENTH RPARENTH
             node_ptr node = create_func_call_node(yyval.str);
             push_node_to_stack(node);
          }
+         |  IDENTIFIER LPARENTH func_params RPARENTH
+         {
+            node_ptr node = create_func_call_parameters_node(yyval.str,
+                                                             value_list_length);
+            reset_func_param_list();
+            push_node_to_stack(node);
+         }
          ;
+
+func_params:    func_param
+           {
+                inc_func_param_list();
+           }
+           |    func_param COMMA func_params
+           {
+                inc_func_param_list();
+           }
+           ;
+
+func_param: expr1
+          | STRING
+          ;
 
 return_stmt:    RETURN value
            {
