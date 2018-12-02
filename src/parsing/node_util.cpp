@@ -77,7 +77,9 @@ void print_node_type(node_ptr node, int indent_level, bool newline)
             printf("FUNC_DEF: %s -- ", node->value.s_value);
             printf(" %d parameters: ", node->num_parameters);
             for(int ii = 0; ii < node->num_parameters; ii++){
-                printf("(%s), ", node->parameters[ii]);
+                printf("(");
+                print_node_type(node->children[ii], 0, false);
+                printf("), ");
             }
             break;
         case BLOCK_STMT_NODE:

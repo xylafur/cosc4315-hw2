@@ -32,6 +32,7 @@ int value_list_length = 0;
 int orphan_else = 0;
 
 int func_param_list_length = 0;
+int ident_list_length = 0;
 
 #define inc_value_list() value_list_length += 1
 #define reset_value_list()  value_list_length = 0
@@ -95,22 +96,34 @@ compound_stmt:  branch_stmt
              |  func_def
              ;
 
+ident_list: IDENTIFIER COMMA ident_list
+          {
+            ident_list_length++;
+          }
+          | IDENTIFIER
+          {
+            printf("Matching single ident list element %s\n", yyval);
+            ident_list_length++;
+          }
+          ;
+
 func_def:   DEF IDENTIFIER LPARENTH RPARENTH COLON block_stmt
         {
             node_ptr block = pop_node_from_stack();
             node_ptr func = create_func_def_node($2, block);
             push_node_to_stack(func);
         }
-        |   DEF IDENTIFIER LPARENTH value_list RPARENTH COLON block_stmt
+        |   DEF IDENTIFIER LPARENTH ident_list RPARENTH COLON block_stmt
         {
             node_ptr block = pop_node_from_stack();
-            pop_parameters(value_list_length, params);
-            node_ptr func = create_func_def_node($2, value_list_length,
+            printf("Creating function def with %d children\n",
+                   ident_list_length);
+            pop_parameters(ident_list_length, params);
+            node_ptr func = create_func_def_node($2, ident_list_length,
                                                  params, block);
 
             push_node_to_stack(func);
-
-            reset_value_list();
+            ident_list_length = 0;
         }
         ;
 

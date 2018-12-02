@@ -34,12 +34,9 @@ int main (int argc, char * argv[])
     /*  Get the root of the abstract syntax tree
      */
     node_ptr ast_root = get_ast();
-
     /* print the entire tree.  We would pass the tree into the conversion
      * function and then it would be executed by the VM, if it were completed
      */
-
-    //printf("\n\n");
     if(do_tree){
         print_tree(ast_root, 0);
     }
