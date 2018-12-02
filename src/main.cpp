@@ -16,13 +16,17 @@ extern FILE *yyin;
 
 int main (int argc, char * argv[])
 {
-
+    int do_tree = 0;
     /*  If we are given a file as a input we will parse that file, otherwise
      *  just grab lines from stdinput until the user types ctrl+^D
      */
     if (argc == 2){
         yyin=fopen(argv[1], "r");
-    } else if (argc >2 ) {
+    } else if (argc == 3) {
+        do_tree = 1;
+        yyin=fopen(argv[2], "r");
+        
+    } else if (argc > 3) {
         printf("Expects one argument (input file) at max!\n");
         return 1;
     }
@@ -41,7 +45,9 @@ int main (int argc, char * argv[])
     std::vector <int> if_elses = detect_if_else(ast_root);
     std::vector <std::string> mutations = find_mutations(ast_root);
 
-    printf("Found %d else blocks without an if\n", orphan_else);
+    if(orphan_else > 0){
+        printf("ERROR: Found %d else blocks without an if\n", orphan_else);
+    }
 
     printf("\nIf/else nested levels: ");
     if(if_elses.size() > 0){
@@ -50,17 +56,16 @@ int main (int argc, char * argv[])
         printf("None.");
     }
 
-    printf("\nMutations: ");
     if(mutations.size() > 0){
+        printf("\nMutated variable: ");
         for(std::string ss : mutations) {
-            std::cout << ss << ", ";
+            std::cout << ss << " level, ";
         }
-    }else{
-        printf("None");
+        puts("\n\n");
     }
-    puts("\n\n");
-
-    print_tree(ast_root, 0);
+    if(do_tree){
+        print_tree(ast_root, 0);
+    }
 
     //don't forget to deallocate
     destroy_tree(ast_root);
