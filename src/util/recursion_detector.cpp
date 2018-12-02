@@ -201,8 +201,6 @@ bool is_increasing(ParseTreeNode *expr, int val) {
     //  * expr is an arithmetic expression which is a child of a func call
     //  * val is the value to substitute
 
-    int eval = 0;
-
     stack<ParseTreeNode*> node_stack;
     node_stack.push(expr);
 
@@ -218,8 +216,8 @@ bool is_increasing(ParseTreeNode *expr, int val) {
             } else if (temp->type == NUMBER_NODE) {
                 operands.push(temp->value.s_value);
             } else {
-                int a = operands.top(); operands.pop();
                 int b = operands.top(); operands.pop();
+                int a = operands.top(); operands.pop();
                 if (temp->type == PLUS) {
                     operands.push(a+b);
                 } else if (temp->type == MINUS) {
@@ -238,6 +236,8 @@ bool is_increasing(ParseTreeNode *expr, int val) {
     }
 
     clean_curr_childs(expr);
-    return operands.top() > val;
+
+    int eval = operands.top();
+    return (eval == val) ? 0 : ((eval > val) ? 1 : -1);
 }
 
