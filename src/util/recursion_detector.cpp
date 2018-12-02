@@ -204,15 +204,15 @@ bool is_increasing(ParseTreeNode *expr, int val) {
     int eval = 0;
 
     stack<ParseTreeNode*> node_stack;
-    stack<int> operands;
+    node_stack.push(expr);
 
+    stack<int> operands;
     ParseTreeNode *temp;
 
     while (!node_stack.empty()) {
         temp = node_stack.top(); 
         if (temp->curr_child == temp->num_children) {
             node_stack.pop();
-            int a, b;
             if (temp->type == IDENTIFIER_NODE) {
                 operands.push(val);
             } else if (temp->type == NUMBER_NODE) {
