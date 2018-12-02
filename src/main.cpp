@@ -51,20 +51,14 @@ int main (int argc, char * argv[])
         printf("ERROR: Found %d else blocks without an if\n", orphan_else);
     }
 
-    printf("\nIf/else nested levels: ");
     if(if_elses.size() > 0){
-        for(int ii : if_elses){
-            printf("%d, ", ii);
-        }
-        printf("\n");
-    }else{
-        printf("None.\n");
+        for(int ii : if_elses) printf("%d level(s), ", ii);
     }
 
     if(mutations.size() > 0){
         printf("\nMutated variable: ");
         for(std::string ss : mutations) {
-            std::cout << ss << " level, ";
+            std::cout << ss << " , ";
         }
         puts("\n\n");
     }
