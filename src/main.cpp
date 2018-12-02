@@ -40,6 +40,10 @@ int main (int argc, char * argv[])
      */
 
     //printf("\n\n");
+    if(do_tree){
+        print_tree(ast_root, 0);
+    }
+
 
 
     std::vector <int> if_elses = detect_if_else(ast_root);
@@ -63,10 +67,6 @@ int main (int argc, char * argv[])
         }
         puts("\n\n");
     }
-    if(do_tree){
-        print_tree(ast_root, 0);
-    }
-
     //don't forget to deallocate
     destroy_tree(ast_root);
 }
