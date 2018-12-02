@@ -52,7 +52,7 @@ int main (int argc, char * argv[])
 
     printf("\nIf/else nested levels: ");
     if(if_elses.size() > 0){
-        for(int ii : if_elses) printf("%d, ", ii);
+        for(int ii : if_elses) printf("%d level(s), ", ii);
     }else{
         printf("None.");
     }
@@ -60,7 +60,7 @@ int main (int argc, char * argv[])
     if(mutations.size() > 0){
         printf("\nMutated variable: ");
         for(std::string ss : mutations) {
-            std::cout << ss << " level, ";
+            std::cout << ss << " , ";
         }
         puts("\n\n");
     }
