@@ -28,17 +28,13 @@ void yyerror(const char * str)
 }
 
 int mod = 1;
-int value_list_length = 0;
 int orphan_else = 0;
 
 int func_param_list_length = 0;
 int ident_list_length = 0;
 
-#define inc_value_list() value_list_length += 1
-#define reset_value_list()  value_list_length = 0
-
-#define inc_func_param_list() value_list_length += 1
-#define reset_func_param_list() value_list_length = 0
+#define inc_func_param_list() func_param_list_length += 1
+#define reset_func_param_list() func_param_list_length = 0
 
 %}
 
@@ -198,10 +194,6 @@ value:  STRING  {
      |  expr1
      ;
 
-value_list: value_list COMMA value  { inc_value_list(); }
-          | value                   { inc_value_list(); }
-          ;
-
 func_call:  IDENTIFIER LPARENTH RPARENTH
          {
             node_ptr node = create_func_call_node(yyval.str);
@@ -209,8 +201,8 @@ func_call:  IDENTIFIER LPARENTH RPARENTH
          }
          |  IDENTIFIER LPARENTH func_params RPARENTH
          {
-            node_ptr node = create_func_call_parameters_node(yyval.str,
-                                                             value_list_length);
+            node_ptr node = create_func_call_parameters_node(
+                yyval.str, func_param_list_length);
             reset_func_param_list();
             push_node_to_stack(node);
          }
@@ -288,19 +280,20 @@ expr5:  expr5 STAR expr6    {
 
 expr6:  PLUS expr6
      |  MINUS expr6     {
-                            mod = mod * -1;
+                            mod = -1;
+                            node_ptr node = pop_node_from_stack();
+                            apply_negation_push();
+                            mod = 1;
                         }
      |  func_call
      |  bool
      |  IDENTIFIER      {
                             node_ptr node = create_identifier_node(yyval.str);
-                            apply_negation_push();
-                            mod = 1;
+                            push_node_to_stack(node);
                         }
      |  NUMBER          {
                             node_ptr node = create_number_node(yyval.num);
-                            apply_negation_push();
-                            mod = 1;
+                            push_node_to_stack(node);
                         }
      ;
 

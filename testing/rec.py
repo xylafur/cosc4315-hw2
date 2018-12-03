@@ -15,7 +15,7 @@ def f2(n):
 
 f(1)
 f1(1)  # no
-f1(-5-2) # no , bug here, supposed to be -7 but becomes 7 in tree, ie no *-1
-f1(-5) # no , bug here, supposed to be -5 but becomes 5 in tree, 
+f1(-5-2) # no
+f1(-5) # no
 f2(1)  # yes
 f2(0)  # yes
