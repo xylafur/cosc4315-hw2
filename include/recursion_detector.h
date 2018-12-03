@@ -8,7 +8,10 @@
 #include <cstring>
 #include "ast.h"
 
-vector<ParseTreeNode*> find_recursive_functions(ParseTreeNode *node);
+bool recursive_function_terminates(ParseTreeNode * rec_func,
+                                   ParseTreeNode * call);
+std::vector<ParseTreeNode*> find_recursive_functions(ParseTreeNode *node);
+std::vector<ParseTreeNode*> find_global_func_calls(ParseTreeNode* program_node);
 
 bool is_recursive_function(ParseTreeNode *func_node);
 
