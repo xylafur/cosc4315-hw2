@@ -118,6 +118,8 @@ bool recursive_function_terminates
         long after   = condition_evaluator(condition, augment);
 
         #define ABS(a) ((a < 0) ? (-a) : (a))
+
+        if (before == 0 || after == 0) return true;
         return (ABS(after) < ABS(before));
     }
 
