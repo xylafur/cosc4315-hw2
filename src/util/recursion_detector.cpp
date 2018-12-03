@@ -98,29 +98,76 @@ bool recursive_function_terminates
         assert(if_ret->type == RETURN_STMT_NODE);
         assert(else_ret->type == RETURN_STMT_NODE);
 
-
-        // ASSUME that recursive call in the else_ret statement like TA said
-        if (!is_base_return_stmt(if_ret, func_name)) {
-            return false;
-        }
-        if (!contains_func_call_of(else_ret, func_name)) {
-            return true;
+        bool recurse_if_false;
+        if (is_base_return_stmt(if_ret, func_name)
+                && contains_func_call_of(else_ret, func_name))
+        {
+            recurse_if_false = true;
+        } else if (is_base_return_stmt(else_ret, func_name)
+                && contains_func_call_of(if_ret, func_name))
+        {
+            recurse_if_false = false;
+        } else {
+            goto flip_a_coin;
         }
 
         // find shallowest func call node
-        ParseTreeNode *func_call = find_shallowest_func_call(else_ret, func_name);
-        if (!func_call) goto flip_a_coin;
-
+        ParseTreeNode *func_call;
+        if (recurse_if_false)
+            func_call = find_shallowest_func_call(else_ret, func_name);
+        else
+            func_call = find_shallowest_func_call(if_ret, func_name);
 
         long calling_value = evaluate_expr(call->children[0], 0);
         long before  = condition_evaluator(condition, calling_value);
         long augment = evaluate_expr(func_call->children[0], calling_value);
         long after   = condition_evaluator(condition, augment);
 
+        printf("{%s(%d)}", func_name, calling_value);
+
         #define ABS(a) ((a < 0) ? (-a) : (a))
 
-        if (before == 0 || after == 0) return true;
-        return (ABS(after) < ABS(before));
+        if (recurse_if_false) {
+
+            if (condition->i_operator == EQUALSEQUALS) {
+                if (before == 0 || after == 0) return true;
+            }
+            if (condition->i_operator == GREATEREQUALS) {
+                if (before >= 0 || after >= 0) return true;
+            }
+            if (condition->i_operator == LESSEQUALS) {
+                if (before <= 0 || after <= 0) return true;
+            }
+            if (condition->i_operator == LESS) {
+                if (before < 0 || after < 0) return true;
+            }
+            if (condition->i_operator == GREATER) {
+                if (before > 0 || after > 0) return true;
+            }
+
+            return ABS(after) < ABS(before);
+
+        } else { // recurse if true
+
+            if (condition->i_operator == EQUALSEQUALS) {
+                if (before != 0 || after != 0) return true;
+            }
+            if (condition->i_operator == GREATEREQUALS) {
+                if (before < 0 || after < 0) return true;
+            }
+            if (condition->i_operator == LESSEQUALS) {
+                if (before > 0 || after > 0) return true;
+            }
+            if (condition->i_operator == LESS) {
+                if (before >= 0 || after >= 0) return true;
+            }
+            if (condition->i_operator == GREATER) {
+                if (before <= 0 || after <= 0) return true;
+            }
+
+            return ABS(after) > ABS(before);
+
+        }
     }
 
     flip_a_coin:
@@ -128,7 +175,8 @@ bool recursive_function_terminates
     return (rand() & 1);
 }
 
-vector<ParseTreeNode*> find_global_func_calls(ParseTreeNode* program_node) {
+vector<ParseTreeNode*> find_global_func_calls
+(ParseTreeNode* program_node, vector<ParseTreeNode*> &recursive_functions) {
     /*
      * finds all function calls in the program
      * assume that no nested function calls exist
@@ -152,8 +200,14 @@ vector<ParseTreeNode*> find_global_func_calls(ParseTreeNode* program_node) {
         temp = search_areas.front(); search_areas.pop();
 
         if (temp->type == FUNC_CALL_NODE) {
-            func_calls.push_back(temp);
-            continue; // remove this if they have nested function calls : foo(foo(m))
+            for (auto rec : recursive_functions) {
+                if (strcmp(rec->value.s_value, temp->value.s_value)==0) {
+                    func_calls.push_back(temp);
+                    break;
+                }
+            }
+            continue;
+                // remove this if they have nested function calls : foo(foo(m))
         }
 
         for (int i = 0; i < temp->num_children; i++) {

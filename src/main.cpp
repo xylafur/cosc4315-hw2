@@ -65,23 +65,23 @@ int main (int argc, char * argv[])
         puts("\n\n");
     }
 
-    std::vector<ParseTreeNode*> func_calls = find_global_func_calls(ast_root);
     std::vector<ParseTreeNode*> func_defs  = find_recursive_functions(ast_root);
+    std::vector<ParseTreeNode*> func_calls = find_global_func_calls(ast_root, func_defs);
 
     for(int jj = 0; jj < func_calls.size(); jj++){
         for(int ii= 0; ii < func_defs.size(); ii++){
             if(strcmp(func_defs[ii]->value.s_value,
                       func_calls[jj]->value.s_value) == 0){
-                //printf("Found call of func %s\n", func_calls[jj]->value.s_value);
-                
-                std::cout << "Recursive call ends("
-                          << func_calls[jj]
-                          << ") : "
+
+                std::cout << "Recursive call ends "
                           << (recursive_function_terminates(func_defs[ii], func_calls[jj])
-                              ? "yes":"no")
+                              ? ": yes":": no")
                           << std::endl;
+
+                break;
             }
         }
+
         //print_tree(func_defs[ii], 0);
         //recursive_function_terminates(
     }
