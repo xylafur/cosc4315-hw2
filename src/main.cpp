@@ -11,12 +11,15 @@
 #include <vector>
 #include <string>
 #include <iostream>
+#include <cstdlib>
+#include <ctime>
 
 extern int orphan_else;
 extern FILE *yyin;
 
 int main (int argc, char * argv[])
 {
+    srand((unsigned)time(0));
     int do_tree = 0;
     /*  If we are given a file as a input we will parse that file, otherwise
      *  just grab lines from stdinput until the user types ctrl+^D
@@ -51,6 +54,7 @@ int main (int argc, char * argv[])
 
     if(if_elses.size() > 0){
         for(int ii : if_elses) printf("%d level(s), ", ii);
+        puts("");
     }
 
     if(mutations.size() > 0){
@@ -64,13 +68,18 @@ int main (int argc, char * argv[])
     std::vector<ParseTreeNode*> func_calls = find_global_func_calls(ast_root);
     std::vector<ParseTreeNode*> func_defs  = find_recursive_functions(ast_root);
 
-    for(int ii= 0; ii < func_defs.size(); ii++){
-        for(int jj = 0; jj < func_calls.size(); jj++){
+    for(int jj = 0; jj < func_calls.size(); jj++){
+        for(int ii= 0; ii < func_defs.size(); ii++){
             if(strcmp(func_defs[ii]->value.s_value,
                       func_calls[jj]->value.s_value) == 0){
                 //printf("Found call of func %s\n", func_calls[jj]->value.s_value);
-                std::cout << recursive_function_terminates(
-                        func_defs[ii], func_calls[jj]) << std::endl;
+                
+                std::cout << "Recursive call ends("
+                          << func_calls[jj]
+                          << ") : "
+                          << (recursive_function_terminates(func_defs[ii], func_calls[jj])
+                              ? "yes":"no")
+                          << std::endl;
             }
         }
         //print_tree(func_defs[ii], 0);

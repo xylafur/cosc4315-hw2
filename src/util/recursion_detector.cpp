@@ -79,7 +79,7 @@ bool recursive_function_terminates
     if (rec_func->num_parameters == 0) return false;
     else if (rec_func->num_parameters > 1) goto flip_a_coin;
 
-    if (rec_func->children[0]->type == RETURN_STMT_NODE){
+    if (func_block->children[0]->type == RETURN_STMT_NODE){
         // printf("first thing is a return\n");
         return is_base_return_stmt(rec_func->children[0], func_name);
     }
@@ -122,7 +122,7 @@ bool recursive_function_terminates
     }
 
     flip_a_coin:
-    puts("...Flipping a coin to solve halting problem...");
+    //puts("...Flipping a coin to solve halting problem...");
     return (rand() & 1);
 }
 
@@ -210,6 +210,10 @@ ParseTreeNode * find_shallowest_func_call(ParseTreeNode *node, const char * func
                 && strcmp(temp->value.s_value, func_name) == 0)
         {
             ret = temp; break;
+        }
+
+        for (int i = 0; i < temp->num_children; i++) {
+            node_queue.push(temp->children[i]);
         }
     }
 
