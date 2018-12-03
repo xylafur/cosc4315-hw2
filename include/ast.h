@@ -30,6 +30,25 @@ typedef enum parse_tree_type_s {
     IDENTIFIER_NODE
 } parse_tree_type_t;
 
+
+struct ParseTreeNode {
+    parse_tree_type_t type;
+    unsigned int num_children = 0;
+    unsigned int curr_child = 0;
+    ParseTreeNode ** children = 0;
+
+    //this is only used for functions
+    unsigned int num_parameters = 0;
+    char ** parameters;
+
+    int i_operator = 0;
+
+    union value {
+        char * s_value;
+        long n_value;
+    } value;
+};
+
 #define node_ptr struct ParseTreeNode *
 #define node_array struct ParseTreeNode **
 #define create_node(name) node_ptr name = new ParseTreeNode
@@ -55,24 +74,6 @@ typedef enum parse_tree_type_s {
         strcpy(arr[num - ii - 1], temp->value.s_value);                 \
         free(temp->value.s_value); delete_node(temp);                   \
     }
-
-struct ParseTreeNode {
-    parse_tree_type_t type;
-    unsigned int num_children = 0;
-    unsigned int curr_child = 0;
-    ParseTreeNode ** children = 0;
-
-    //this is only used for functions
-    unsigned int num_parameters = 0;
-    char ** parameters;
-
-    int i_operator = 0;
-
-    union value {
-        char * s_value;
-        long n_value;
-    } value;
-};
 
 node_ptr get_ast();
 

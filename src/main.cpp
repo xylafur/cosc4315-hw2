@@ -26,7 +26,6 @@ int main (int argc, char * argv[])
     } else if (argc == 3) {
         do_tree = 1;
         yyin=fopen(argv[2], "r");
-        
     } else if (argc > 3) {
         printf("Expects one argument (input file) at max!\n");
         return 1;
@@ -41,7 +40,6 @@ int main (int argc, char * argv[])
     if(do_tree){
         print_tree(ast_root, 0);
     }
-
 
 
     std::vector <int> if_elses = detect_if_else(ast_root);
@@ -64,7 +62,7 @@ int main (int argc, char * argv[])
     }
 
     std::vector<ParseTreeNode*> func_calls = find_global_func_calls(ast_root);
-    std::vector<ParseTreeNode*> func_defs = find_recursive_functions(ast_root);
+    std::vector<ParseTreeNode*> func_defs  = find_recursive_functions(ast_root);
 
     for(int ii= 0; ii < func_defs.size(); ii++){
         for(int jj = 0; jj < func_calls.size(); jj++){
@@ -77,10 +75,10 @@ int main (int argc, char * argv[])
         }
         //print_tree(func_defs[ii], 0);
         //recursive_function_terminates(
-        
     }
 
     printf("\n\n");
     //don't forget to deallocate
     destroy_tree(ast_root);
 }
+

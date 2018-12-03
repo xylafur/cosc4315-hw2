@@ -17,9 +17,11 @@ bool contains_func_call_of(ParseTreeNode *func_node, const char *func_name) {
     while (!node_queue.empty()) {
         temp = node_queue.front(); node_queue.pop();
         if (temp->type == FUNC_CALL_NODE
-             && strcmp(temp->value.s_value, func_name) == 0) {
+             && strcmp(temp->value.s_value, func_name) == 0)
+        {
             return true;
         }
+
         for (int i = 0; i < temp->num_children; i++) {
             node_queue.push(temp->children[i]);
         }
@@ -64,121 +66,65 @@ find_return_statements(ParseTreeNode *func_def) {
     return return_stmts;
 }
 
-bool recursive_function_terminates(ParseTreeNode * rec_func,
-                                   ParseTreeNode * call){
+bool recursive_function_terminates
+(ParseTreeNode * rec_func, ParseTreeNode * call) {
+
+    assert(rec_func->type == FUNC_DEF_NODE);
+    assert(call->type == FUNC_CALL_NODE);
+
     const char * func_name = rec_func->value.s_value;
 
-    ParseTreeNode * block = rec_func->children[0];
-    if(rec_func->num_children > 0){
-        printf("num children > 0\n");
-        if(rec_func->children[0]->type == RETURN_STMT_NODE){
-            printf("first thing is a return\n");
-            return is_base_return_stmt(rec_func->children[0], func_name);
-        }
+    ParseTreeNode * func_block = rec_func->children[0];
 
-        else if(block->children[0]->type == BRANCH_STMT_ELSE_NODE){
-            printf("branch stmt with else\n");
+    if (rec_func->num_parameters == 0) return false;
+    else if (rec_func->num_parameters > 1) goto flip_a_coin;
 
-            ParseTreeNode * condition    = block->children[2];
-            ParseTreeNode * _if     = block->children[0];
-            ParseTreeNode * _else = block->children[1];
-
-            ParseTreeNode * if_ret = _if->children[0]->children[0];
-            ParseTreeNode * else_ret = _else->children[0]->children[0];
-    
-            //the if block is the recurisve call and the else block is the base
-            //case
-            if(is_recursive_function(if_ret) &&
-               is_base_return_stmt(else_ret, func_name)){
-                printf("if recursive, else base\n");
-
-            }else if(is_recursive_function(else_ret) &&
-                     is_base_return_stmt(if_ret, func_name)){
-                printf("else recursive, if base\n");
-
-            }else if(is_base_return_stmt(if_ret, func_name) &&
-                     is_base_return_stmt(else_ret, func_name)){
-                printf("else base, if base\n");
-
-            }else if(is_recursive_function(if_ret) &&
-                     is_recursive_function(else_ret)){
-                printf("else recursive, if recursive\n");
-
-
-            }else{
-                //throw our hands up because we hard coded to hard
-                printf("flip a coin!\n");
-            }
-
-
-        }
+    if (rec_func->children[0]->type == RETURN_STMT_NODE){
+        // printf("first thing is a return\n");
+        return is_base_return_stmt(rec_func->children[0], func_name);
     }
-    return false;
-    
+
+    if (func_block->children[0]->type == BRANCH_STMT_ELSE_NODE) {
+
+        ParseTreeNode * if_else_block = func_block->children[0];
+
+        ParseTreeNode * condition    = if_else_block->children[2];
+        ParseTreeNode * _true_block  = if_else_block->children[0];
+        ParseTreeNode * _false_block = if_else_block->children[1];
+
+        ParseTreeNode *if_ret       = _true_block->children[0];
+        ParseTreeNode *else_ret     = _false_block->children[0];
+
+        assert(if_ret->type == RETURN_STMT_NODE);
+        assert(else_ret->type == RETURN_STMT_NODE);
+
+
+        // ASSUME that recursive call in the else_ret statement like TA said
+        if (!is_base_return_stmt(if_ret, func_name)) {
+            return false;
+        }
+        if (!contains_func_call_of(else_ret, func_name)) {
+            return true;
+        }
+
+        // find shallowest func call node
+        ParseTreeNode *func_call = find_shallowest_func_call(else_ret, func_name);
+        if (!func_call) goto flip_a_coin;
+
+
+        long calling_value = evalutate_expr(call->children[0], 0);
+        long before  = condition_evaluator(condition, calling_value);
+        long augment = evalutate_expr(func_call->children[0], calling_value);
+        long after   = condition_evaluator(condition, augment);
+
+        #define ABS(a) ((a < 0) ? (-a) : (a))
+        return (ABS(after) < ABS(before));
+    }
+
+    flip_a_coin:
+    puts("...Flipping a coin to solve halting problem...");
+    return (rand() & 1);
 }
-
-/*
-bool recursive_function_terminates(ParseTreeNode *rec_func, vector<ParseTreeNode> calls) {
-    assert(rec_func);
-    assert(rec_func->type == FUNC_DEF_NODE);
-
-    if (!contains_func_call_of(rec_func, rec_func->value.s_value)) {
-        return false; // not a recursive function
-    }
-
-    vector<ParseTreeNode *> return_stmts = find_return_statements(rec_func);
-    bool has_no_base_return = true;
-    ParseTreeNode *base_return = 0, *recursive_call = 0;
-
-    int counter=0, base_return_pos = 0, recursive_call_pos = 0;
-    for (auto ret : return_stmts) {
-        if (is_base_return_stmt(ret)) {
-            has_no_base_return = false;
-            base_return = ret;
-            base_return_pos = counter;
-            break;
-        } else {
-            recursive_call = ret;
-            recursive_call_pos = counter;
-        }
-        counter++;
-    }
-
-    if (has_no_base_return) {
-        return false;
-    }
-
-    // I STOPPED HERE
-
-    ParseTreeNode *func_block = rec_func->children[0];
-    assert(func_block->type == BLOCK_STMT_NODE); // or replace with return false
-
-    ParseTreeNode *if_stmt_node = func_block->children[0];
-        // assume that first 
-
-    assert(if_stmt_node->type == BRANCH_STMT_ELSE_NODE
-            || if_stmt_node->type == BRANCH_STMT_NO_ELSE_NODE);
-            // or replace with return false
-
-    ParseTreeNode *condition = if_stmt_node->children[if_stmt_node->num_children-1];
-    assert(condition->type == EXPR_NODE);
-
-
-    ParseTreeNode *recursive_call = 0;
-    if (if_stmt_node->type == BRANCH_STMT_ELSE_NODE) {
-        recursive_call = if_stmt_node->children[1].children[0];
-    } else { // BRANCH_STMT_NO_ELSE_NODE
-        // assume first statement after if statement is a return statement
-        recursive_call = rec_func->children[1];
-    }
-
-    assert(recursive_call->type == RETURN_STMT_NODE); // or replace with return false
-
-    bool base_case_if_true = contains_func_call_of(recursive_call, rec_func->value.s_value);
-
-}
-*/
-
 
 vector<ParseTreeNode*> find_global_func_calls(ParseTreeNode* program_node) {
     /*
@@ -252,7 +198,62 @@ void clean_curr_childs(ParseTreeNode *node) {
     }
 }
 
-bool is_increasing(ParseTreeNode *expr, int val) {
+ParseTreeNode * find_shallowest_func_call(ParseTreeNode *node, const char * func_name) {
+    ParseTreeNode * ret = 0;
+
+    queue<ParseTreeNode*> node_queue;
+    node_queue.push(node);
+    ParseTreeNode *temp;
+    while (!node_queue.empty()) {
+        temp = node_queue.front(); node_queue.pop();
+        if (temp->type == FUNC_CALL_NODE
+                && strcmp(temp->value.s_value, func_name) == 0)
+        {
+            ret = temp; break;
+        }
+    }
+
+    return ret;
+}
+
+long condition_evaluator(ParseTreeNode *condition, int val) {
+    // assume following structure
+    //        (CMP : <,>,>=,<=,==)
+    //       /                    \
+    //  (LHS)                      (RHS)
+    //
+    //
+    //  want to change into
+    //
+    //                  (CMP : <,>,>=,<=,==)
+    //                 /                    \
+    //              (-)                      (0)
+    //             /   \
+    //         LHS)     (RHS)
+    //
+    // that way condition becomes Truer if evaluation of
+    // LHS - RHS is closer to zero
+
+    ParseTreeNode *LHS = condition->children[0];
+    ParseTreeNode *RHS = condition->children[1];
+
+    ParseTreeNode SUB_NODE;
+    SUB_NODE.type = EXPR_NODE;
+    SUB_NODE.num_children = 2;
+    SUB_NODE.children = new ParseTreeNode*[2];
+    SUB_NODE.children[0] = LHS;
+    SUB_NODE.children[1] = RHS;
+    SUB_NODE.i_operator = MINUS;
+
+    long eval = evalutate_expr(&SUB_NODE, val);
+    SUB_NODE.children[0] = SUB_NODE.children[1] = 0;
+    delete[] SUB_NODE.children;
+
+    return eval;
+}
+
+
+long evalutate_expr(ParseTreeNode *expr, int val) {
     // assumptions:
     //  * expr is an arithmetic expression which is a child of a func call
     //  * val is the value to substitute
@@ -291,7 +292,6 @@ bool is_increasing(ParseTreeNode *expr, int val) {
 
     clean_curr_childs(expr);
 
-    long eval = operands.top();
-    return (eval == val) ? 0 : ((eval > val) ? 1 : -1);
+    return operands.top();
 }
 
