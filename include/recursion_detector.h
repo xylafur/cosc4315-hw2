@@ -3,6 +3,7 @@
 #define RECURSION_DETECTOR_H
 
 #include <queue>
+#include <stack>
 #include <vector>
 #include <string>
 #include <cstring>

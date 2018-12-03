@@ -260,7 +260,7 @@ bool is_increasing(ParseTreeNode *expr, int val) {
     stack<ParseTreeNode*> node_stack;
     node_stack.push(expr);
 
-    stack<int> operands;
+    stack<long> operands;
     ParseTreeNode *temp;
 
     while (!node_stack.empty()) {
@@ -270,30 +270,28 @@ bool is_increasing(ParseTreeNode *expr, int val) {
             if (temp->type == IDENTIFIER_NODE) {
                 operands.push(val);
             } else if (temp->type == NUMBER_NODE) {
-                operands.push(temp->value.s_value);
+                operands.push(temp->value.n_value);
             } else {
                 int b = operands.top(); operands.pop();
                 int a = operands.top(); operands.pop();
-                if (temp->type == PLUS) {
-                    operands.push(a+b);
-                } else if (temp->type == MINUS) {
-                    operands.push(a-b);
-                } else if (temp->type == STAR) {
-                    operands.push(a*b);
-                } else if (temp->type == SLASH) {
-                    operands.push(a/b);
-                } else {
-                    assert(0);
+
+                switch (temp->i_operator) {
+                    case PLUS  :  operands.push(a+b); break;
+                    case MINUS :  operands.push(a-b); break;
+                    case STAR  :  operands.push(a*b); break;
+                    case SLASH :  operands.push(a/b); break;
+                    default: puts("ERROR in is_increasing: unrecognized operator");
+                             assert(0);
                 }
             }
         } else {
-            node_stack.push(temp->num_children[temp->curr_child++]);
+            node_stack.push(temp->children[temp->curr_child++]);
         }
     }
 
     clean_curr_childs(expr);
 
-    int eval = operands.top();
+    long eval = operands.top();
     return (eval == val) ? 0 : ((eval > val) ? 1 : -1);
 }
 
