@@ -3,7 +3,7 @@
 PSID        |   Name                |   Unix id
 ---------------------------------------------------
 1495728     |   Raymond Sutrisno    |   cosc3001
-1555520     |   James Richardson    |   cosc4315
+1555520     |   James Richardson    |   cosc2994
 
 Compilation:
     To compile our program, simply run `make` in this directory.
