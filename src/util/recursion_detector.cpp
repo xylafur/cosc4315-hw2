@@ -76,6 +76,14 @@ bool recursive_function_terminates
 
     ParseTreeNode * func_block = rec_func->children[0];
 
+    long * calling_values = new long[call->num_children];
+    printf("%s(", func_name);
+    for (int i = 0; i < call->num_children; i++) {
+        printf("%d,", evaluate_expr(call->children[i], 0));
+    }
+    printf(") :");
+    delete[] calling_values;
+
     if (rec_func->num_parameters == 0) return false;
     else if (rec_func->num_parameters > 1) goto flip_a_coin;
 
@@ -123,7 +131,6 @@ bool recursive_function_terminates
         long augment = evaluate_expr(func_call->children[0], calling_value);
         long after   = condition_evaluator(condition, augment);
 
-        printf("{%s(%d)}", func_name, calling_value);
 
         #define ABS(a) ((a < 0) ? (-a) : (a))
 
