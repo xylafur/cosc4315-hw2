@@ -119,8 +119,6 @@ func_def:   DEF IDENTIFIER LPARENTH RPARENTH COLON block_stmt
         |   DEF IDENTIFIER LPARENTH ident_list RPARENTH COLON block_stmt
         {
             node_ptr block = pop_node_from_stack();
-            printf("Creating function def with %d children\n",
-                   ident_list_length);
             pop_parameters(ident_list_length, params);
             node_ptr func = create_func_def_node($2, ident_list_length,
                                                  params, block);

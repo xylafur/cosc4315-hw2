@@ -83,6 +83,24 @@ Implementation:
         3. A variable is considered mutated if the number of assignments
         is greater than 1
 
-    Recursion Detection (Ray and Kesley) :
-        TBD
+    Recursion Detection (Ray and James) :
+        Our recursion detection runs off of the assumption of the form given by
+        the examples from the professor and TAs.  After we construct our parse
+        tree node, we ensure that there is an if/else block inside of the file
+        and thus the AST node.
 
+        We then look at this child, find the condition for the if stmt and the
+        value that will be passed into the recursive call.  We then preform a
+        delta on the expression inside of the recursive call and determine if it
+        is closer to the condition given by the if stmt than it was before.  If
+        it is, then we assume that the function will end, if it is not then we
+        assume that the function will not terminate.
+
+
+        Because of this, our recursion detection will only work for functions of
+        the form
+
+        if <condition>:
+           <base case>
+        else:
+           <recursive func call>

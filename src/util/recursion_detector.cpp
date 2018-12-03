@@ -112,9 +112,9 @@ bool recursive_function_terminates
         if (!func_call) goto flip_a_coin;
 
 
-        long calling_value = evalutate_expr(call->children[0], 0);
+        long calling_value = evaluate_expr(call->children[0], 0);
         long before  = condition_evaluator(condition, calling_value);
-        long augment = evalutate_expr(func_call->children[0], calling_value);
+        long augment = evaluate_expr(func_call->children[0], calling_value);
         long after   = condition_evaluator(condition, augment);
 
         #define ABS(a) ((a < 0) ? (-a) : (a))
@@ -198,7 +198,8 @@ void clean_curr_childs(ParseTreeNode *node) {
     }
 }
 
-ParseTreeNode * find_shallowest_func_call(ParseTreeNode *node, const char * func_name) {
+ParseTreeNode * find_shallowest_func_call(ParseTreeNode *node,
+                                          const char * func_name) {
     ParseTreeNode * ret = 0;
 
     queue<ParseTreeNode*> node_queue;
@@ -207,7 +208,7 @@ ParseTreeNode * find_shallowest_func_call(ParseTreeNode *node, const char * func
     while (!node_queue.empty()) {
         temp = node_queue.front(); node_queue.pop();
         if (temp->type == FUNC_CALL_NODE
-                && strcmp(temp->value.s_value, func_name) == 0)
+            && strcmp(temp->value.s_value, func_name) == 0)
         {
             ret = temp; break;
         }
@@ -233,7 +234,7 @@ long condition_evaluator(ParseTreeNode *condition, int val) {
     //                 /                    \
     //              (-)                      (0)
     //             /   \
-    //         LHS)     (RHS)
+    //        (LHS)     (RHS)
     //
     // that way condition becomes Truer if evaluation of
     // LHS - RHS is closer to zero
@@ -249,7 +250,7 @@ long condition_evaluator(ParseTreeNode *condition, int val) {
     SUB_NODE.children[1] = RHS;
     SUB_NODE.i_operator = MINUS;
 
-    long eval = evalutate_expr(&SUB_NODE, val);
+    long eval = evaluate_expr(&SUB_NODE, val);
     SUB_NODE.children[0] = SUB_NODE.children[1] = 0;
     delete[] SUB_NODE.children;
 
@@ -257,7 +258,7 @@ long condition_evaluator(ParseTreeNode *condition, int val) {
 }
 
 
-long evalutate_expr(ParseTreeNode *expr, int val) {
+long evaluate_expr(ParseTreeNode *expr, int val) {
     // assumptions:
     //  * expr is an arithmetic expression which is a child of a func call
     //  * val is the value to substitute

@@ -32,7 +32,7 @@ ParseTreeNode * find_shallowest_func_call(ParseTreeNode *node, const char * func
 
 long condition_evaluator(ParseTreeNode *cond, int val);
 
-long evalutate_expr(ParseTreeNode *expr, int val);
+long evaluate_expr(ParseTreeNode *expr, int val);
 
 
 
